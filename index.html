@@ -55,7 +55,7 @@
         top: 0;
         background-color: var(--dark-navy);
         color: white;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         z-index: 1050;
         display: flex;
         flex-direction: column;
@@ -92,6 +92,7 @@
       .nav-menu {
         flex-grow: 1;
         padding: 1.5rem 0;
+        overflow-y: auto;
       }
 
       .nav-item {
@@ -143,7 +144,7 @@
       @keyframes fadeIn {
         from {
           opacity: 0;
-          transform: translateY(12px);
+          transform: translateY(8px);
         }
         to {
           opacity: 1;
@@ -280,13 +281,13 @@
         font-size: 0.9rem;
       }
 
+      /* Responsive Viewport Optimizations */
       @media (max-width: 991.98px) {
         .sidebar {
-          left: -100%;
-          box-shadow: 15px 0 40px rgba(0, 0, 0, 0.15);
+          transform: translateX(-100%);
         }
         .sidebar.show {
-          left: 0;
+          transform: translateX(0);
         }
         .main-content {
           margin-left: 0;
@@ -314,8 +315,8 @@
       .mobile-toggle {
         display: none;
         position: fixed;
-        top: 20px;
-        left: 20px;
+        top: 15px;
+        left: 15px;
         z-index: 1100;
         background: var(--dark-navy);
         color: white;
@@ -326,6 +327,13 @@
         align-items: center;
         justify-content: center;
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        transition: background-color 0.2s;
+      }
+
+      .mobile-toggle:hover,
+      .mobile-toggle:active {
+        background-color: var(--primary-color);
+        color: white;
       }
 
       .pagination-container {
@@ -347,6 +355,12 @@
 
       .unregistered-row {
         background-color: rgba(239, 68, 68, 0.02);
+      }
+
+      /* Mencegah iOS Safari Auto-Zoom di Input Kolom */
+      .form-control,
+      .form-select {
+        font-size: 1rem !important; /* Minimal 16px untuk standard kegunaan mobile */
       }
 
       code {
@@ -405,6 +419,22 @@
         background-color: rgba(0, 0, 0, 0.05);
         border-radius: 10px;
         overflow: hidden;
+      }
+
+      /* Toast Notification Styling on Mobile */
+      #toast {
+        max-width: 350px;
+        width: 100%;
+      }
+      @media (max-width: 575.98px) {
+        #toast {
+          right: 0 !important;
+          left: 0 !important;
+          margin: 0 auto;
+          padding: 1rem;
+          max-width: 100%;
+          bottom: 10px !important;
+        }
       }
     </style>
   </head>
@@ -512,83 +542,99 @@
     <main class="main-content">
       <!-- SECTION 1: DASHBOARD -->
       <section id="section-dashboard" class="content-section active">
-        <div class="row align-items-center mb-4">
-          <div class="col-md-6">
-            <h2 class="fw-bold mb-1">Dashboard Pemantauan</h2>
-            <p class="text-muted">
+        <div class="row align-items-center mb-4 g-3">
+          <div class="col-md-6 text-start">
+            <h2 class="fw-bold mb-1 fs-3">Dashboard Pemantauan</h2>
+            <p class="text-muted small mb-0">
               Pantau akses pintu Lab Komputer secara real-time.
             </p>
           </div>
-          <div class="col-md-6 text-md-end">
-            <span class="badge bg-white text-dark shadow-sm border py-2 px-3">
+          <div class="col-md-6 text-start text-md-end">
+            <span class="badge bg-white text-dark shadow-sm border py-2.5 px-3">
               <i class="far fa-clock text-primary me-2"></i
               ><span id="current-time-txt">Loading...</span>
             </span>
           </div>
         </div>
 
-        <div class="row g-4 mb-4">
+        <div class="row g-3 mb-4">
           <!-- Total Users Stat -->
-          <div class="col-md-3 col-sm-6">
+          <div class="col-xl-3 col-sm-6">
             <div class="stat-card d-flex align-items-center">
               <div
-                class="rounded-circle bg-primary bg-opacity-10 p-3 me-3 text-primary"
+                class="rounded-circle bg-primary bg-opacity-10 p-3 me-3 text-primary d-flex align-items-center justify-content-center"
+                style="width: 50px; height: 50px"
               >
                 <i class="fas fa-users fa-lg"></i>
               </div>
               <div>
-                <p class="text-muted mb-0 small text-uppercase fw-bold">
+                <p
+                  class="text-muted mb-0 small text-uppercase fw-bold"
+                  style="font-size: 0.7rem"
+                >
                   Total Pengguna
                 </p>
-                <h2 class="mb-0 fw-bold" id="stat-total-users">0</h2>
+                <h2 class="mb-0 fw-bold fs-4" id="stat-total-users">0</h2>
               </div>
             </div>
           </div>
           <!-- Log Count Stat -->
-          <div class="col-md-3 col-sm-6">
+          <div class="col-xl-3 col-sm-6">
             <div class="stat-card d-flex align-items-center">
               <div
-                class="rounded-circle bg-info bg-opacity-10 p-3 me-3 text-info"
+                class="rounded-circle bg-info bg-opacity-10 p-3 me-3 text-info d-flex align-items-center justify-content-center"
+                style="width: 50px; height: 50px"
               >
                 <i class="fas fa-list-ul fa-lg"></i>
               </div>
               <div>
-                <p class="text-muted mb-0 small text-uppercase fw-bold">
+                <p
+                  class="text-muted mb-0 small text-uppercase fw-bold"
+                  style="font-size: 0.7rem"
+                >
                   Total Log
                 </p>
-                <h2 class="mb-0 fw-bold" id="stat-total-logs">0</h2>
+                <h2 class="mb-0 fw-bold fs-4" id="stat-total-logs">0</h2>
               </div>
             </div>
           </div>
           <!-- Success Access Stat -->
-          <div class="col-md-3 col-sm-6">
+          <div class="col-xl-3 col-sm-6">
             <div class="stat-card d-flex align-items-center">
               <div
-                class="rounded-circle bg-success bg-opacity-10 p-3 me-3 text-success"
+                class="rounded-circle bg-success bg-opacity-10 p-3 me-3 text-success d-flex align-items-center justify-content-center"
+                style="width: 50px; height: 50px"
               >
                 <i class="fas fa-check-circle fa-lg"></i>
               </div>
               <div>
-                <p class="text-muted mb-0 small text-uppercase fw-bold">
+                <p
+                  class="text-muted mb-0 small text-uppercase fw-bold"
+                  style="font-size: 0.7rem"
+                >
                   Akses Diterima
                 </p>
-                <h2 class="mb-0 fw-bold" id="stat-access-granted">0</h2>
+                <h2 class="mb-0 fw-bold fs-4" id="stat-access-granted">0</h2>
               </div>
             </div>
           </div>
           <!-- Denied Access Stat -->
-          <div class="col-md-3 col-sm-6">
+          <div class="col-xl-3 col-sm-6">
             <div class="stat-card d-flex align-items-center">
               <div
-                class="rounded-circle bg-danger bg-opacity-10 p-3 me-3 text-danger"
+                class="rounded-circle bg-danger bg-opacity-10 p-3 me-3 text-danger d-flex align-items-center justify-content-center"
+                style="width: 50px; height: 50px"
               >
                 <i class="fas fa-exclamation-triangle fa-lg"></i>
               </div>
               <div>
-                <p class="text-muted mb-0 small text-uppercase fw-bold">
+                <p
+                  class="text-muted mb-0 small text-uppercase fw-bold"
+                  style="font-size: 0.7rem"
+                >
                   Upaya Ditolak
                 </p>
-                <h2 class="mb-0 fw-bold" id="stat-access-denied">0</h2>
+                <h2 class="mb-0 fw-bold fs-4" id="stat-access-denied">0</h2>
               </div>
             </div>
           </div>
@@ -606,7 +652,7 @@
                 <span class="badge bg-danger text-white">Live Feed</span>
               </div>
               <div
-                class="card-body p-4 bg-light bg-opacity-50 d-flex flex-column justify-content-center"
+                class="card-body p-3 p-sm-4 bg-light bg-opacity-50 d-flex flex-column justify-content-center"
               >
                 <div class="cam-wrapper">
                   <div class="cam-badge">Kamera Lab</div>
@@ -623,7 +669,9 @@
                   </div>
                   <div class="cam-timestamp">
                     <i class="far fa-clock text-warning"></i>
-                    <span id="photo-time">Menghubungkan...</span>
+                    <span id="photo-time" style="font-size: 0.7rem"
+                      >Menghubungkan...</span
+                    >
                   </div>
                 </div>
               </div>
@@ -682,8 +730,8 @@
       <section id="section-users-man" class="content-section">
         <div class="row align-items-center mb-4">
           <div class="col">
-            <h2 class="fw-bold mb-1">Manajemen Master Pengguna</h2>
-            <p class="text-muted">
+            <h2 class="fw-bold mb-1 fs-3">Manajemen Master Pengguna</h2>
+            <p class="text-muted small">
               Kelola data seluruh pengguna terdaftar yang berhak mengakses Lab
               Komputer.
             </p>
@@ -693,7 +741,7 @@
         <div class="row g-4">
           <!-- Form Section -->
           <div class="col-xl-4">
-            <div class="card sticky-top" style="top: 2rem; z-index: 10">
+            <div class="card" style="z-index: 10">
               <div class="card-header" id="form-title">
                 <span
                   ><i class="fas fa-user-plus text-primary me-2"></i>Registrasi
@@ -729,9 +777,9 @@
                   >
                   <select id="userRole" class="form-select form-select-lg">
                     <option value="Kepala Sekolah">Kepala Sekolah</option>
-                    <option value="Guru">Guru</option>
-                    <option value="Staf">Staf TU / Lab</option>
                     <option value="Siswa" selected>Siswa</option>
+                    <option value="Guru">Guru</option>
+                    <option value="Staf">Staf TU / Laboran</option>
                     <option value="Tamu">Tamu Khusus</option>
                   </select>
                 </div>
@@ -755,14 +803,14 @@
                 </div>
                 <div class="d-grid gap-2">
                   <button
-                    class="btn btn-primary btn-lg"
+                    class="btn btn-primary btn-lg py-2.5 fs-6"
                     id="btn-save-user"
                     onclick="saveUser()"
                   >
                     <i class="fas fa-save me-2"></i>Simpan Pengguna
                   </button>
                   <button
-                    class="btn btn-light btn-lg d-none"
+                    class="btn btn-light btn-lg py-2.5 fs-6 d-none"
                     id="btn-cancel-edit"
                     onclick="cancelEdit()"
                   >
@@ -777,14 +825,14 @@
           <div class="col-xl-8">
             <div class="card">
               <div class="card-header bg-white py-3">
-                <div class="row w-100 g-2 align-items-center">
-                  <div class="col-md-6">
+                <div class="row w-100 g-3 align-items-center">
+                  <div class="col-md-6 col-12">
                     <span class="fw-bold"
                       ><i class="fas fa-address-book text-primary me-2"></i
                       >Daftar Master Pengguna</span
                     >
                   </div>
-                  <div class="col-md-6">
+                  <div class="col-md-6 col-12">
                     <div class="input-group">
                       <span class="input-group-text bg-light border-end-0"
                         ><i class="fas fa-search text-muted"></i
@@ -829,23 +877,25 @@
 
       <!-- SECTION 3: LOGS MANAGEMENT -->
       <section id="section-logs-man" class="content-section">
-        <div class="row align-items-center mb-4">
-          <div class="col-md-8">
-            <h2 class="fw-bold mb-1">Data Log Riwayat Akses</h2>
-            <p class="text-muted">
+        <div class="row align-items-center mb-4 g-3">
+          <div class="col-md-8 col-12 text-start">
+            <h2 class="fw-bold mb-1 fs-3">Data Log Riwayat Akses</h2>
+            <p class="text-muted small mb-0">
               Telusuri seluruh riwayat pencatatan keluar-masuk Lab secara
               detail.
             </p>
           </div>
-          <div class="col-md-4 text-md-end d-flex gap-2 justify-content-md-end">
+          <div
+            class="col-md-4 col-12 text-start text-md-end d-flex gap-2 justify-content-md-end"
+          >
             <button
-              class="btn btn-success d-flex align-items-center gap-2 shadow-sm"
+              class="btn btn-success d-flex align-items-center justify-content-center gap-2 shadow-sm py-2 px-3 fs-6 flex-grow-1 flex-md-grow-0"
               onclick="exportLogsToCSV()"
             >
               <i class="fas fa-file-excel"></i> Ekspor CSV
             </button>
             <button
-              class="btn btn-outline-danger d-flex align-items-center gap-2 shadow-sm"
+              class="btn btn-outline-danger d-flex align-items-center justify-content-center gap-2 shadow-sm py-2 px-3 fs-6 flex-grow-1 flex-md-grow-0"
               onclick="confirmClearLogs()"
             >
               <i class="fas fa-trash-alt"></i> Bersihkan Log
@@ -854,9 +904,9 @@
         </div>
 
         <div class="card mb-4">
-          <div class="card-body p-4 bg-white">
+          <div class="card-body p-3 p-sm-4 bg-white">
             <div class="row g-3">
-              <div class="col-md-4">
+              <div class="col-md-4 col-12">
                 <label class="form-label small fw-semibold text-muted"
                   >Cari Nama/UID</label
                 >
@@ -873,7 +923,7 @@
                   />
                 </div>
               </div>
-              <div class="col-md-4">
+              <div class="col-md-4 col-12">
                 <label class="form-label small fw-semibold text-muted"
                   >Filter Status Akses</label
                 >
@@ -887,8 +937,11 @@
                   <option value="Akses Ditolak">Akses Ditolak</option>
                 </select>
               </div>
-              <div class="col-md-4 d-flex align-items-end">
-                <button class="btn btn-light w-100" onclick="resetLogFilters()">
+              <div class="col-md-4 col-12 d-flex align-items-end">
+                <button
+                  class="btn btn-light w-100 py-2"
+                  onclick="resetLogFilters()"
+                >
                   <i class="fas fa-undo me-1"></i> Reset Pencarian
                 </button>
               </div>
@@ -939,8 +992,8 @@
       <section id="section-rfid-scan" class="content-section">
         <div class="row align-items-center mb-4">
           <div class="col">
-            <h2 class="fw-bold mb-1">Pendaftaran RFID Baru</h2>
-            <p class="text-muted">
+            <h2 class="fw-bold mb-1 fs-3">Pendaftaran RFID Baru</h2>
+            <p class="text-muted small">
               Pantau secara real-time kartu RFID tidak dikenal yang ditap di
               pintu Lab, lalu segera daftarkan ke database.
             </p>
@@ -949,7 +1002,7 @@
 
         <div class="row g-4">
           <!-- Real-time Scanner Card -->
-          <div class="col-lg-7">
+          <div class="col-lg-7 col-12">
             <div class="card border-0 shadow-sm h-100">
               <div class="card-header bg-white py-3 border-0">
                 <span class="fs-6 text-dark fw-bold text-primary">
@@ -958,7 +1011,7 @@
                 </span>
               </div>
               <div
-                class="card-body p-5 text-center d-flex flex-column justify-content-center"
+                class="card-body p-4 p-sm-5 text-center d-flex flex-column justify-content-center"
                 id="scan-state-container"
               >
                 <!-- Listening state will dynamically change here via JavaScript -->
@@ -982,14 +1035,14 @@
           </div>
 
           <!-- Simulation Tool on the scan page to test workflows without hardware -->
-          <div class="col-lg-5">
+          <div class="col-lg-5 col-12">
             <div
               class="card border-0 h-100 simulator-card p-3 shadow-sm d-flex flex-column justify-content-center"
             >
               <div class="card-header bg-transparent border-0 pb-1 pt-2">
                 <h6 class="fw-bold text-secondary mb-0">
-                  <i class="fas fa-magic text-warning me-2"></i>Simulator Tap
-                  RFID
+                  <i class="fas fa-magic text-warning me-2"></i>Simulator
+                  Pengetukan Alat
                 </h6>
               </div>
               <div class="card-body">
@@ -1021,7 +1074,7 @@
                 </div>
 
                 <button
-                  class="btn btn-primary w-100 py-2.5"
+                  class="btn btn-primary w-100 py-2.5 fs-6"
                   onclick="triggerScanSimulation()"
                 >
                   <i class="fas fa-rss-square me-2"></i> Simulasikan Tap Kartu
@@ -1036,7 +1089,7 @@
                   >
                   <p
                     class="small mb-0 text-muted"
-                    style="font-size: 12px; line-height: 1.5"
+                    style="font-size: 11px; line-height: 1.5"
                   >
                     1. Klik tombol <strong>Acak</strong> lalu klik
                     <strong>Simulasikan Tap Kartu Baru</strong>.<br />
@@ -1060,21 +1113,21 @@
           class="modal-content border-0 shadow-lg"
           style="border-radius: 20px"
         >
-          <div class="modal-body text-center p-5">
+          <div class="modal-body text-center p-4 p-sm-5">
             <div id="modal-icon" class="mb-4"></div>
             <h4 class="fw-bold" id="modal-title">Konfirmasi Tindakan</h4>
             <p class="text-muted mb-4" id="modal-message"></p>
             <div class="d-flex gap-3 justify-content-center">
               <button
                 type="button"
-                class="btn btn-light px-4 py-2 rounded-pill"
+                class="btn btn-light px-4 py-2.5 rounded-pill fs-6"
                 data-bs-dismiss="modal"
               >
                 Batal
               </button>
               <button
                 type="button"
-                class="btn btn-danger px-4 py-2 rounded-pill"
+                class="btn btn-danger px-4 py-2.5 rounded-pill fs-6"
                 id="confirmActionBtn"
               >
                 Lanjutkan
@@ -1155,7 +1208,12 @@
           .querySelectorAll(".content-section")
           .forEach((section) => section.classList.remove("active"));
         document.getElementById("section-" + sectionId).classList.add("active");
-        if (window.innerWidth < 992) toggleSidebar();
+
+        // Defensively close sidebar only if currently visible and expanded on mobile
+        const sidebar = document.getElementById("sidebar");
+        if (window.innerWidth < 992 && sidebar.classList.contains("show")) {
+          toggleSidebar();
+        }
       }
 
       function toggleSidebar() {
@@ -1174,7 +1232,7 @@
           <div id="${id}" class="alert alert-success shadow-lg border-0 mb-2 text-white ${bgColor}" style="min-width: 250px;">
             <div class="d-flex align-items-center">
               <i class="fas ${icon} me-2"></i>
-              <div class="flex-grow-1">${message}</div>
+              <div class="flex-grow-1 small">${message}</div>
               <button type="button" class="btn-close btn-close-white ms-2" onclick="document.getElementById('${id}').remove()"></button>
             </div>
           </div>`;
@@ -1699,11 +1757,11 @@
 
           container.innerHTML = `
             <div class="p-3 text-start bg-danger bg-opacity-10 rounded-4 border border-danger border-opacity-25" style="animation: fadeIn 0.3s ease;">
-              <div class="d-flex align-items-center justify-content-between mb-2 pb-2">
+              <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between gap-2 mb-2 pb-2">
                 <span class="badge bg-danger text-uppercase px-3 py-1.5 rounded-pill animate-pulse">
                   <span class="spinner-grow spinner-grow-sm me-1" style="width:10px; height:10px;" role="status"></span> Kartu Baru Terdeteksi
                 </span>
-                <span class="badge bg-warning text-dark font-monospace" id="scan-countdown-badge">
+                <span class="badge bg-warning text-dark font-monospace align-self-start align-self-sm-auto" id="scan-countdown-badge">
                   <i class="fas fa-hourglass-half me-1"></i>Sisa: ${initialRemaining}s
                 </span>
               </div>
@@ -1716,7 +1774,7 @@
               <div class="mb-4">
                 <label class="small text-muted d-block uppercase fw-bold mb-1">UID Kartu (RFID)</label>
                 <div class="d-flex align-items-center gap-2">
-                  <h3 class="mb-0 font-monospace text-primary fw-bold bg-white p-2.5 rounded-3 border w-100">${scanData.uid}</h3>
+                  <h3 class="mb-0 font-monospace text-primary fw-bold bg-white p-2.5 rounded-3 border w-100 fs-4 text-truncate">${scanData.uid}</h3>
                   <button class="btn btn-outline-secondary py-2 px-3" onclick="copyUIDToClipboard('${scanData.uid}')" title="Salin UID">
                     <i class="far fa-copy"></i>
                   </button>
@@ -1726,10 +1784,10 @@
                 Pilih tindakan di bawah ini untuk kartu dengan UID <code>${scanData.uid}</code>. Tindakan pendaftaran akan otomatis mengisi UID ke formulir pendaftaran pengguna.
               </p>
               <div class="d-flex gap-2">
-                <button class="btn btn-primary flex-grow-1 py-2.5 animate-pulse" onclick="daftarkanScanBaru('${scanData.uid}')">
+                <button class="btn btn-primary flex-grow-1 py-2.5 fs-6 animate-pulse" onclick="daftarkanScanBaru('${scanData.uid}')">
                   <i class="fas fa-plus-circle me-1"></i> Daftarkan Sekarang
                 </button>
-                <button class="btn btn-outline-danger py-2.5 px-4" onclick="abaikanScanBaru()">
+                <button class="btn btn-outline-danger py-2.5 px-4 fs-6" onclick="abaikanScanBaru()">
                   Abaikan
                 </button>
               </div>
