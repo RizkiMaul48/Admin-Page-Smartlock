@@ -6,7 +6,7 @@
     <title>SmartLock Lab Komputer SMK PGRI KARBAS</title>
     <!-- Google Fonts -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght=300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <!-- Bootstrap 5 CSS -->
@@ -25,12 +25,17 @@
 
     <style>
       :root {
-        --primary-color: #0d6efd;
-        --secondary-color: #6c757d;
+        --primary-color: #4f46e5;
+        --primary-light: #818cf8;
+        --secondary-color: #64748b;
+        --success-color: #10b981;
+        --warning-color: #f59e0b;
+        --danger-color: #ef4444;
         --sidebar-width: 280px;
         --dark-navy: #0f172a;
-        --light-bg: #f1f5f9;
-        --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        --light-bg: #f8fafc;
+        --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        --premium-shadow: 0 10px 30px rgba(79, 70, 229, 0.15);
       }
 
       body {
@@ -54,10 +59,11 @@
         z-index: 1050;
         display: flex;
         flex-direction: column;
+        border-right: 1px solid rgba(255, 255, 255, 0.05);
       }
 
       .sidebar-header {
-        padding: 2.5rem 1.5rem;
+        padding: 2rem 1.5rem;
         border-bottom: 1px solid rgba(255, 255, 255, 0.05);
       }
 
@@ -70,15 +76,17 @@
       }
 
       .sidebar-brand-title {
-        font-size: 1.1rem;
+        font-size: 1.15rem;
         font-weight: 700;
         line-height: 1.2;
+        letter-spacing: -0.025em;
       }
 
       .sidebar-brand-subtitle {
-        font-size: 0.8rem;
-        font-weight: 400;
-        opacity: 0.7;
+        font-size: 0.75rem;
+        font-weight: 500;
+        opacity: 0.6;
+        display: block;
       }
 
       .nav-menu {
@@ -87,27 +95,36 @@
       }
 
       .nav-item {
-        padding: 0.9rem 1.5rem;
+        padding: 0.85rem 1.5rem;
         display: flex;
         align-items: center;
         gap: 15px;
-        color: rgba(255, 255, 255, 0.6);
+        color: rgba(255, 255, 255, 0.55);
         text-decoration: none;
-        transition: all 0.2s;
+        transition: all 0.2s ease;
         cursor: pointer;
         border-left: 4px solid transparent;
+        margin-bottom: 4px;
+        font-weight: 500;
+        font-size: 0.95rem;
       }
 
       .nav-item:hover,
       .nav-item.active {
-        background: rgba(255, 255, 255, 0.05);
-        color: white;
+        background: rgba(255, 255, 255, 0.04);
+        color: #f1f5f9;
         border-left-color: var(--primary-color);
+      }
+
+      .nav-item.active i {
+        color: var(--primary-light);
       }
 
       .nav-item i {
         width: 20px;
         text-align: center;
+        font-size: 1.1rem;
+        transition: color 0.2s;
       }
 
       /* Main Content Styles */
@@ -120,34 +137,44 @@
 
       .content-section {
         display: none;
-        animation: fadeIn 0.4s ease-out;
+        animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
       }
+
       @keyframes fadeIn {
         from {
           opacity: 0;
-          transform: translateY(15px);
+          transform: translateY(12px);
         }
         to {
           opacity: 1;
           transform: translateY(0);
         }
       }
+
       .content-section.active {
         display: block;
       }
 
       .stat-card {
         border: none;
-        border-radius: 18px;
+        border-radius: 16px;
         box-shadow: var(--card-shadow);
         background: white;
         padding: 1.5rem;
         height: 100%;
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease;
+      }
+
+      .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
       }
 
       .card {
         border: none;
-        border-radius: 20px;
+        border-radius: 16px;
         box-shadow: var(--card-shadow);
         margin-bottom: 2rem;
         overflow: hidden;
@@ -157,23 +184,23 @@
         background-color: #fff;
         font-weight: 700;
         border-bottom: 1px solid #f1f5f9;
-        padding: 1.5rem;
+        padding: 1.25rem 1.5rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
       }
 
-      /* Snapshot Tampilan */
+      /* Camera Widget styling... */
       .cam-wrapper {
         background: #000;
         border-radius: 16px;
         position: relative;
         overflow: hidden;
         width: 100%;
-        max-width: 500px;
+        max-width: 600px;
         margin: 0 auto;
-        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
-        border: 2px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+        border: 2px solid rgba(255, 255, 255, 0.05);
       }
 
       .cam-frame-large {
@@ -182,6 +209,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        background-color: #1e293b;
       }
 
       .cam-frame-large img {
@@ -194,35 +222,68 @@
         position: absolute;
         bottom: 12px;
         right: 12px;
-        background: rgba(0, 0, 0, 0.7);
+        background: rgba(15, 23, 42, 0.85);
         color: #fff;
-        padding: 4px 12px;
+        padding: 6px 14px;
         border-radius: 50px;
         font-size: 0.75rem;
+        font-weight: 500;
         backdrop-filter: blur(8px);
         border: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 6px;
       }
 
-      /* Responsive Table */
+      .cam-badge {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        background: rgba(239, 68, 68, 0.9);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 50px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          opacity: 0.6;
+        }
+        50% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0.6;
+        }
+      }
+
+      /* Tables Design */
       .table thead th {
         background-color: #f8fafc;
         text-transform: uppercase;
         font-size: 0.75rem;
+        font-weight: 700;
         color: #64748b;
-        padding: 1.25rem 1rem;
-        border: none;
+        padding: 1.1rem 1rem;
+        border-bottom: 2px solid #e2e8f0;
       }
 
       .table tbody td {
-        padding: 1.25rem 1rem;
+        padding: 1.1rem 1rem;
         vertical-align: middle;
         border-bottom: 1px solid #f1f5f9;
+        font-size: 0.9rem;
       }
 
       @media (max-width: 991.98px) {
         .sidebar {
           left: -100%;
-          box-shadow: 15px 0 40px rgba(0, 0, 0, 0.2);
+          box-shadow: 15px 0 40px rgba(0, 0, 0, 0.15);
         }
         .sidebar.show {
           left: 0;
@@ -268,8 +329,9 @@
       }
 
       .pagination-container {
-        padding: 1.5rem;
+        padding: 1.25rem 1.5rem;
         background: #f8fafc;
+        border-top: 1px solid #e2e8f0;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -284,37 +346,86 @@
       }
 
       .unregistered-row {
-        background-color: rgba(220, 53, 69, 0.03);
+        background-color: rgba(239, 68, 68, 0.02);
       }
+
       code {
-        color: #e83e8c;
-        background: #fff;
-        padding: 0.3rem 0.6rem;
+        color: #db2777;
+        background: #fdf2f8;
+        padding: 0.25rem 0.5rem;
         border-radius: 6px;
-        font-size: 0.9rem;
-        border: 1px solid #eee;
+        font-size: 0.85rem;
+        border: 1px solid #fbcfe8;
+        font-family:
+          SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+          "Courier New", monospace;
+      }
+
+      /* Radar pulsing styling for Scan Page */
+      .radar-signal {
+        position: relative;
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        background: rgba(79, 70, 229, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+      }
+
+      .radar-signal i {
+        color: var(--primary-color);
+        z-index: 2;
+      }
+
+      .radar-wave {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: rgba(79, 70, 229, 0.2);
+        animation: radar-pulsing 2s infinite ease-out;
+        z-index: 1;
+      }
+
+      @keyframes radar-pulsing {
+        0% {
+          transform: scale(0.9);
+          opacity: 1;
+        }
+        100% {
+          transform: scale(1.8);
+          opacity: 0;
+        }
       }
     </style>
   </head>
   <body>
+    <!-- Sidebar Overlay for Mobile -->
     <div
       class="sidebar-overlay"
       id="sidebarOverlay"
       onclick="toggleSidebar()"
     ></div>
 
+    <!-- Toggle button for mobile -->
     <button class="mobile-toggle" onclick="toggleSidebar()">
       <i class="fas fa-bars fa-lg"></i>
     </button>
 
+    <!-- Sidebar Navigation -->
     <nav class="sidebar" id="sidebar">
       <div class="sidebar-header">
         <div class="sidebar-brand">
-          <div class="rounded-circle bg-primary p-2">
+          <div
+            class="rounded-circle bg-primary p-2 d-flex align-items-center justify-content-center"
+            style="width: 40px; height: 40px"
+          >
             <i class="fas fa-shield-alt text-white"></i>
           </div>
           <div class="sidebar-brand-text">
-            <span class="sidebar-brand-title">SmartLock Lab</span>
+            <span class="sidebar-brand-title d-block">SmartLock Lab</span>
             <span class="sidebar-brand-subtitle">SMK PGRI KARBAS</span>
           </div>
         </div>
@@ -333,114 +444,452 @@
           id="nav-users-man"
           onclick="switchSection('users-man', this)"
         >
-          <i class="fas fa-user-friends"></i><span>Manajemen User</span>
+          <i class="fas fa-user-friends"></i><span>Master Pengguna</span>
         </a>
+        <a
+          class="nav-item"
+          id="nav-logs-man"
+          onclick="switchSection('logs-man', this)"
+        >
+          <i class="fas fa-history"></i><span>Log Riwayat</span>
+        </a>
+        <a
+          class="nav-item"
+          id="nav-rfid-scan"
+          onclick="switchSection('rfid-scan', this)"
+        >
+          <i class="fas fa-id-card-alt"></i><span>RFID Baru</span>
+          <span
+            class="badge bg-danger rounded-pill ms-2 d-none"
+            id="scan-badge-dot"
+            >Scan</span
+          >
+        </a>
+      </div>
+
+      <!-- STATUS PANEL (DATABASE & WIFI STATUS) -->
+      <div class="p-3 border-top border-secondary border-opacity-10 mt-auto">
+        <div class="bg-dark bg-opacity-20 rounded p-3 text-center">
+          <!-- Database Status -->
+          <div class="small opacity-50 mb-1" style="font-size: 11px">
+            Koneksi Database
+          </div>
+          <span
+            class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-20 w-100 py-2 mb-2 d-block"
+          >
+            <span
+              class="spinner-grow spinner-grow-sm me-1"
+              role="status"
+              style="width: 8px; height: 8px"
+            ></span>
+            Firebase Connected
+          </span>
+
+          <!-- WiFi Status -->
+          <div class="small opacity-50 mb-1 mt-2" style="font-size: 11px">
+            WiFi Alat (ESP32)
+          </div>
+          <span
+            id="wifi-status-badge"
+            class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 w-100 py-2 d-block text-truncate"
+            style="max-width: 100%; transition: all 0.3s ease"
+          >
+            <i class="fas fa-spinner fa-spin me-1" id="wifi-status-icon"></i>
+            <span id="wifi-status-text">Memeriksa WiFi...</span>
+          </span>
+        </div>
       </div>
     </nav>
 
+    <!-- Main Content Area -->
     <main class="main-content">
-      <!-- SECTION: DASHBOARD -->
+      <!-- SECTION 1: DASHBOARD -->
       <section id="section-dashboard" class="content-section active">
         <div class="row align-items-center mb-4">
           <div class="col-md-6">
-            <h2 class="fw-bold mb-1">Dashboard Utama</h2>
+            <h2 class="fw-bold mb-1">Dashboard Pemantauan</h2>
             <p class="text-muted">
-              Pantau akses Lab Komputer secara real-time.
+              Pantau akses pintu Lab Komputer secara real-time.
+            </p>
+          </div>
+          <div class="col-md-6 text-md-end">
+            <span class="badge bg-white text-dark shadow-sm border py-2 px-3">
+              <i class="far fa-clock text-primary me-2"></i
+              ><span id="current-time-txt">Loading...</span>
+            </span>
+          </div>
+        </div>
+
+        <div class="row g-4 mb-4">
+          <!-- Total Users Stat -->
+          <div class="col-md-3 col-sm-6">
+            <div class="stat-card d-flex align-items-center">
+              <div
+                class="rounded-circle bg-primary bg-opacity-10 p-3 me-3 text-primary"
+              >
+                <i class="fas fa-users fa-lg"></i>
+              </div>
+              <div>
+                <p class="text-muted mb-0 small text-uppercase fw-bold">
+                  Total Pengguna
+                </p>
+                <h2 class="mb-0 fw-bold" id="stat-total-users">0</h2>
+              </div>
+            </div>
+          </div>
+          <!-- Log Count Stat -->
+          <div class="col-md-3 col-sm-6">
+            <div class="stat-card d-flex align-items-center">
+              <div
+                class="rounded-circle bg-info bg-opacity-10 p-3 me-3 text-info"
+              >
+                <i class="fas fa-list-ul fa-lg"></i>
+              </div>
+              <div>
+                <p class="text-muted mb-0 small text-uppercase fw-bold">
+                  Total Log
+                </p>
+                <h2 class="mb-0 fw-bold" id="stat-total-logs">0</h2>
+              </div>
+            </div>
+          </div>
+          <!-- Success Access Stat -->
+          <div class="col-md-3 col-sm-6">
+            <div class="stat-card d-flex align-items-center">
+              <div
+                class="rounded-circle bg-success bg-opacity-10 p-3 me-3 text-success"
+              >
+                <i class="fas fa-check-circle fa-lg"></i>
+              </div>
+              <div>
+                <p class="text-muted mb-0 small text-uppercase fw-bold">
+                  Akses Diterima
+                </p>
+                <h2 class="mb-0 fw-bold" id="stat-access-granted">0</h2>
+              </div>
+            </div>
+          </div>
+          <!-- Denied Access Stat -->
+          <div class="col-md-3 col-sm-6">
+            <div class="stat-card d-flex align-items-center">
+              <div
+                class="rounded-circle bg-danger bg-opacity-10 p-3 me-3 text-danger"
+              >
+                <i class="fas fa-exclamation-triangle fa-lg"></i>
+              </div>
+              <div>
+                <p class="text-muted mb-0 small text-uppercase fw-bold">
+                  Upaya Ditolak
+                </p>
+                <h2 class="mb-0 fw-bold" id="stat-access-denied">0</h2>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-4 mb-4">
+          <!-- Last Detected Face Feed -->
+          <div class="col-lg-7">
+            <div class="card border-0 h-100">
+              <div class="card-header bg-white">
+                <span class="fs-6 text-dark fw-bold">
+                  <i class="fas fa-camera text-primary me-2"></i>Tangkapan
+                  Kamera Terakhir
+                </span>
+                <span class="badge bg-danger text-white">Live Feed</span>
+              </div>
+              <div
+                class="card-body p-4 bg-light bg-opacity-50 d-flex flex-column justify-content-center"
+              >
+                <div class="cam-wrapper">
+                  <div class="cam-badge">Kamera Lab</div>
+                  <div class="cam-frame-large">
+                    <img
+                      id="last-photo"
+                      src="https://placehold.co/640x360/1e293b/ffffff?text=Menunggu+Akses+Kamera..."
+                      alt="Snapshot Kamera"
+                      onerror="
+                        this.src =
+                          'https://placehold.co/640x360/1e293b/ffffff?text=Kamera+Offline'
+                      "
+                    />
+                  </div>
+                  <div class="cam-timestamp">
+                    <i class="far fa-clock text-warning"></i>
+                    <span id="photo-time">Menghubungkan...</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Access Logs Panel -->
+          <div class="col-lg-5">
+            <div class="card border-0 h-100">
+              <div class="card-header bg-white">
+                <span class="fs-6 text-dark fw-bold">
+                  <i class="fas fa-bolt text-warning me-2"></i>Aktivitas
+                  Terakhir
+                </span>
+                <button
+                  onclick="
+                    switchSection(
+                      'logs-man',
+                      document.getElementById('nav-logs-man'),
+                    )
+                  "
+                  class="btn btn-link btn-sm text-decoration-none"
+                >
+                  Lihat Semua
+                </button>
+              </div>
+              <div class="card-body p-0">
+                <div class="table-responsive">
+                  <table
+                    class="table table-hover mb-0"
+                    style="font-size: 0.85rem"
+                  >
+                    <thead>
+                      <tr>
+                        <th class="ps-3">Waktu</th>
+                        <th>User</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody id="quick-log-body">
+                      <tr>
+                        <td colspan="3" class="text-center py-4 text-muted">
+                          Belum ada aktivitas terekam.
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 2: MASTER DATA USER -->
+      <section id="section-users-man" class="content-section">
+        <div class="row align-items-center mb-4">
+          <div class="col">
+            <h2 class="fw-bold mb-1">Manajemen Master Pengguna</h2>
+            <p class="text-muted">
+              Kelola data seluruh pengguna terdaftar yang berhak mengakses Lab
+              Komputer.
             </p>
           </div>
         </div>
 
-        <div class="row mb-4">
-          <div class="col-12">
-            <div class="card border-0">
-              <div class="card-header bg-white">
-                <span class="fs-6 text-dark fw-bold"
-                  ><i class="fas fa-camera text-primary me-2"></i>Wajah
-                  Terdeteksi Terakhir</span
+        <div class="row g-4">
+          <!-- Form Section -->
+          <div class="col-xl-4">
+            <div class="card sticky-top" style="top: 2rem; z-index: 10">
+              <div class="card-header" id="form-title">
+                <span
+                  ><i class="fas fa-user-plus text-primary me-2"></i>Registrasi
+                  Pengguna</span
                 >
               </div>
-              <div class="card-body p-4 bg-light bg-opacity-50 text-center">
-                <div class="cam-wrapper">
-                  <div class="cam-frame-large">
-                    <img
-                      id="last-photo"
-                      src="https://via.placeholder.com/640x360?text=Menunggu+Akses+Kamera..."
-                      alt="Snapshot"
-                    />
+              <div class="card-body p-4">
+                <div class="mb-3">
+                  <label class="form-label fw-semibold small"
+                    >Nama Lengkap</label
+                  >
+                  <input
+                    type="text"
+                    id="userName"
+                    class="form-control form-control-lg"
+                    placeholder="Contoh: Budi Santoso"
+                  />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label fw-semibold small"
+                    >Nomor Identitas (NIP / NIS)</label
+                  >
+                  <input
+                    type="text"
+                    id="userIDCard"
+                    class="form-control form-control-lg"
+                    placeholder="Contoh: 21221014"
+                  />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label fw-semibold small"
+                    >Jabatan / Peran</label
+                  >
+                  <select id="userRole" class="form-select form-select-lg">
+                    <option value="Kepala Sekolah">Kepala Sekolah</option>
+                    <option value="Siswa" selected>Siswa</option>
+                    <option value="Guru">Guru</option>
+                    <option value="Staf">Staf TU / Laboran</option>
+                    <option value="Tamu">Tamu Khusus</option>
+                  </select>
+                </div>
+                <div class="mb-4">
+                  <label
+                    class="form-label fw-semibold small d-flex justify-content-between"
+                  >
+                    <span>UID RFID Card</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="userUID"
+                    class="form-control form-control-lg font-monospace"
+                    placeholder="Format: XX XX XX XX"
+                  />
+                  <span
+                    class="text-muted"
+                    style="font-size: 10px; margin-top: 4px; display: block"
+                    >Masukkan 8 karakter UID RFID tanpa atau dengan spasi.</span
+                  >
+                </div>
+                <div class="d-grid gap-2">
+                  <button
+                    class="btn btn-primary btn-lg"
+                    id="btn-save-user"
+                    onclick="saveUser()"
+                  >
+                    <i class="fas fa-save me-2"></i>Simpan Pengguna
+                  </button>
+                  <button
+                    class="btn btn-light btn-lg d-none"
+                    id="btn-cancel-edit"
+                    onclick="cancelEdit()"
+                  >
+                    Batal Edit
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- List Section -->
+          <div class="col-xl-8">
+            <div class="card">
+              <div class="card-header bg-white py-3">
+                <div class="row w-100 g-2 align-items-center">
+                  <div class="col-md-6">
+                    <span class="fw-bold"
+                      ><i class="fas fa-address-book text-primary me-2"></i
+                      >Daftar Master Pengguna</span
+                    >
                   </div>
-                  <div class="cam-timestamp" id="photo-time">Waktu: -</div>
+                  <div class="col-md-6">
+                    <div class="input-group">
+                      <span class="input-group-text bg-light border-end-0"
+                        ><i class="fas fa-search text-muted"></i
+                      ></span>
+                      <input
+                        type="text"
+                        id="search-user"
+                        class="form-control bg-light border-start-0"
+                        placeholder="Cari nama atau UID..."
+                        onkeyup="filterUserList()"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body p-0">
+                <div class="table-responsive">
+                  <table class="table table-hover mb-0 align-middle">
+                    <thead>
+                      <tr>
+                        <th class="ps-4">Informasi Pengguna</th>
+                        <th>ID / NIS</th>
+                        <th>Peran</th>
+                        <th>UID RFID</th>
+                        <th class="pe-4 text-end">Aksi</th>
+                      </tr>
+                    </thead>
+                    <tbody id="user-table-body">
+                      <tr>
+                        <td colspan="5" class="text-center py-5 text-muted">
+                          Belum ada data pengguna terdaftar.
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
           </div>
         </div>
+      </section>
 
-        <div class="row g-4 mb-5">
-          <div class="col-md-4">
-            <div class="stat-card">
-              <div class="d-flex align-items-center">
-                <div
-                  class="rounded-circle bg-primary bg-opacity-10 p-3 me-3 text-primary"
+      <!-- SECTION 3: LOGS MANAGEMENT -->
+      <section id="section-logs-man" class="content-section">
+        <div class="row align-items-center mb-4">
+          <div class="col-md-8">
+            <h2 class="fw-bold mb-1">Data Log Riwayat Akses</h2>
+            <p class="text-muted">
+              Telusuri seluruh riwayat pencatatan keluar-masuk Lab secara
+              detail.
+            </p>
+          </div>
+          <div class="col-md-4 text-md-end d-flex gap-2 justify-content-md-end">
+            <button
+              class="btn btn-success d-flex align-items-center gap-2 shadow-sm"
+              onclick="exportLogsToCSV()"
+            >
+              <i class="fas fa-file-excel"></i> Ekspor CSV
+            </button>
+            <button
+              class="btn btn-outline-danger d-flex align-items-center gap-2 shadow-sm"
+              onclick="confirmClearLogs()"
+            >
+              <i class="fas fa-trash-alt"></i> Bersihkan Log
+            </button>
+          </div>
+        </div>
+
+        <div class="card mb-4">
+          <div class="card-body p-4 bg-white">
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold text-muted"
+                  >Cari Nama/UID</label
                 >
-                  <i class="fas fa-users fa-2x"></i>
-                </div>
-                <div>
-                  <p class="text-muted mb-0 small text-uppercase fw-bold">
-                    User Terdaftar
-                  </p>
-                  <h2 class="mb-0 fw-bold" id="stat-total-users">0</h2>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0"
+                    ><i class="fas fa-search text-muted"></i
+                  ></span>
+                  <input
+                    type="text"
+                    id="search-log"
+                    class="form-control bg-light border-start-0"
+                    placeholder="Ketik pencarian..."
+                    onkeyup="filterAndRenderLogs()"
+                  />
                 </div>
               </div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="stat-card">
-              <div class="d-flex align-items-center">
-                <div
-                  class="rounded-circle bg-success bg-opacity-10 p-3 me-3 text-success"
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold text-muted"
+                  >Filter Status Akses</label
                 >
-                  <i class="fas fa-check-circle fa-2x"></i>
-                </div>
-                <div>
-                  <p class="text-muted mb-0 small text-uppercase fw-bold">
-                    Akses Berhasil
-                  </p>
-                  <h2 class="mb-0 fw-bold" id="stat-access-granted">0</h2>
-                </div>
+                <select
+                  id="filter-log-status"
+                  class="form-select bg-light"
+                  onchange="filterAndRenderLogs()"
+                >
+                  <option value="ALL">Semua Status</option>
+                  <option value="Akses Diterima">Akses Diterima</option>
+                  <option value="Akses Ditolak">Akses Ditolak</option>
+                </select>
               </div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="stat-card">
-              <div class="d-flex align-items-center">
-                <div
-                  class="rounded-circle bg-danger bg-opacity-10 p-3 me-3 text-danger"
-                >
-                  <i class="fas fa-exclamation-triangle fa-2x"></i>
-                </div>
-                <div>
-                  <p class="text-muted mb-0 small text-uppercase fw-bold">
-                    Upaya Ditolak
-                  </p>
-                  <h2 class="mb-0 fw-bold" id="stat-access-denied">0</h2>
-                </div>
+              <div class="col-md-4 d-flex align-items-end">
+                <button class="btn btn-light w-100" onclick="resetLogFilters()">
+                  <i class="fas fa-undo me-1"></i> Reset Pencarian
+                </button>
               </div>
             </div>
           </div>
         </div>
 
         <div class="card">
-          <div class="card-header">
-            <div>
-              <i class="fas fa-history text-primary me-2"></i>Log Riwayat Akses
-            </div>
-            <button
-              class="btn btn-sm btn-outline-danger px-3"
-              onclick="confirmClearLogs()"
-            >
-              <i class="fas fa-eraser me-1"></i>Bersihkan Log
-            </button>
-          </div>
           <div class="card-body p-0">
             <div class="table-responsive">
               <table class="table table-hover mb-0">
@@ -449,14 +898,23 @@
                     <th class="ps-4">Waktu</th>
                     <th>Nama User</th>
                     <th>UID Kartu</th>
+                    <th>ID Identitas</th>
                     <th>Lokasi</th>
                     <th>Status</th>
-                    <th class="pe-4 text-end">Aksi</th>
+                    <th class="pe-4 text-end">Hapus</th>
                   </tr>
                 </thead>
-                <tbody id="table-body"></tbody>
+                <tbody id="table-log-body">
+                  <tr>
+                    <td colspan="7" class="text-center py-5 text-muted">
+                      Belum ada riwayat akses.
+                    </td>
+                  </tr>
+                </tbody>
               </table>
             </div>
+
+            <!-- Custom Pagination -->
             <div class="pagination-container">
               <div class="text-muted small" id="pagination-info">Data: 0</div>
               <nav>
@@ -470,70 +928,117 @@
         </div>
       </section>
 
-      <!-- SECTION: USERS MANAGEMENT -->
-      <section id="section-users-man" class="content-section">
-        <h2 class="fw-bold mb-1">Manajemen Pengguna</h2>
-        <p class="text-muted mb-4">
-          Daftarkan dan kelola kartu akses RFID di sini.
-        </p>
+      <!-- SECTION 4: REAL-TIME UNREGISTERED RFID DETECTOR -->
+      <section id="section-rfid-scan" class="content-section">
+        <div class="row align-items-center mb-4">
+          <div class="col">
+            <h2 class="fw-bold mb-1">Pendaftaran RFID Baru</h2>
+            <p class="text-muted">
+              Pantau secara real-time kartu RFID tidak dikenal yang ditap di
+              pintu Lab, lalu segera daftarkan ke database.
+            </p>
+          </div>
+        </div>
 
         <div class="row g-4">
-          <div class="col-xl-4">
-            <div class="card sticky-top" style="top: 2rem; z-index: 10">
-              <div class="card-header" id="form-title">
-                <span
-                  ><i class="fas fa-id-card text-primary me-2"></i>Registrasi
-                  User</span
-                >
+          <!-- Real-time Scanner Card -->
+          <div class="col-lg-7">
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-header bg-white py-3 border-0">
+                <span class="fs-6 text-dark fw-bold text-primary">
+                  <i class="fas fa-satellite-dish me-2"></i>Status Antrean
+                  Deteksi Kartu
+                </span>
               </div>
-              <div class="card-body p-4">
-                <div class="mb-3">
-                  <label class="form-label fw-bold small">Nama Lengkap</label>
-                  <input
-                    type="text"
-                    id="userName"
-                    class="form-control form-control-lg"
-                    placeholder="Masukkan nama..."
-                  />
+              <div
+                class="card-body p-5 text-center d-flex flex-column justify-content-center"
+                id="scan-state-container"
+              >
+                <!-- Listening state will dynamically change here via JavaScript -->
+                <div class="radar-signal">
+                  <div class="radar-wave"></div>
+                  <i class="fas fa-rss fa-3x"></i>
                 </div>
-                <div class="mb-4">
-                  <label class="form-label fw-bold small">UID RFID</label>
-                  <input
-                    type="text"
-                    id="userUID"
-                    class="form-control form-control-lg font-monospace"
-                    placeholder="XX XX XX XX"
-                  />
-                </div>
-                <div class="d-grid gap-2">
-                  <button
-                    class="btn btn-primary btn-lg"
-                    id="btn-save-user"
-                    onclick="saveUser()"
-                  >
-                    <i class="fas fa-save me-2"></i>Simpan User
-                  </button>
-                  <button
-                    class="btn btn-light btn-lg d-none"
-                    id="btn-cancel-edit"
-                    onclick="cancelEdit()"
-                  >
-                    Batal
-                  </button>
-                </div>
+                <h5 class="fw-bold text-dark mt-3">
+                  Menunggu Pemindaian Kartu...
+                </h5>
+                <p
+                  class="text-muted small mx-auto mb-4"
+                  style="max-width: 400px"
+                >
+                  Tempelkan kartu RFID baru yang belum terdaftar di mesin pintu
+                  Lab Komputer. Kartu yang terdeteksi akan langsung muncul di
+                  halaman ini.
+                </p>
               </div>
             </div>
           </div>
-          <div class="col-xl-8">
-            <div class="card">
-              <div class="card-header">
-                <span
-                  ><i class="fas fa-list-ul text-primary me-2"></i>Daftar User
-                  Aktif</span
-                >
+
+          <!-- Simulation Tool on the scan page to test workflows without hardware -->
+          <div class="col-lg-5">
+            <div
+              class="card border-0 h-100 simulator-card p-3 shadow-sm d-flex flex-column justify-content-center"
+            >
+              <div class="card-header bg-transparent border-0 pb-1 pt-2">
+                <h6 class="fw-bold text-secondary mb-0">
+                  <i class="fas fa-magic text-warning me-2"></i>Simulator
+                  Pengetukan Alat
+                </h6>
               </div>
-              <div class="card-body p-0">
-                <ul class="list-group list-group-flush" id="user-list"></ul>
+              <div class="card-body">
+                <p class="small text-muted mb-4">
+                  Gunakan simulator di bawah ini jika Anda ingin menyimulasikan
+                  kejadian ketika ada murid atau guru mengetuk kartu RFID baru
+                  yang belum terdaftar.
+                </p>
+
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold text-muted"
+                    >Generate UID Acak</label
+                  >
+                  <div class="input-group">
+                    <input
+                      type="text"
+                      id="sim-custom-uid"
+                      class="form-control font-monospace"
+                      placeholder="Format: AB CD EF GH"
+                      readonly
+                    />
+                    <button
+                      class="btn btn-outline-secondary"
+                      onclick="generateSimulatedUID()"
+                    >
+                      <i class="fas fa-dice"></i> Acak
+                    </button>
+                  </div>
+                </div>
+
+                <button
+                  class="btn btn-primary w-100 py-2.5"
+                  onclick="triggerScanSimulation()"
+                >
+                  <i class="fas fa-rss-square me-2"></i> Simulasikan Tap Kartu
+                  Baru
+                </button>
+
+                <div class="bg-light rounded p-3 mt-3">
+                  <span
+                    class="small d-block text-muted text-uppercase fw-bold mb-1"
+                    style="font-size: 10px"
+                    >Instruksi Demo</span
+                  >
+                  <p
+                    class="small mb-0 text-muted"
+                    style="font-size: 12px; line-height: 1.5"
+                  >
+                    1. Klik tombol <strong>Acak</strong> lalu klik
+                    <strong>Simulasikan Tap Kartu Baru</strong>.<br />
+                    2. Panel di sebelah kiri secara real-time akan berubah
+                    menampilkan info kartu baru tersebut.<br />
+                    3. Klik <strong>Daftarkan Sekarang</strong> untuk beralih ke
+                    Master Pengguna dengan UID terisi secara otomatis.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -541,31 +1046,31 @@
       </section>
     </main>
 
-    <!-- Modal Konfirmasi -->
+    <!-- Modal Konfirmasi Universal -->
     <div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div
           class="modal-content border-0 shadow-lg"
-          style="border-radius: 24px"
+          style="border-radius: 20px"
         >
           <div class="modal-body text-center p-5">
             <div id="modal-icon" class="mb-4"></div>
-            <h4 class="fw-bold" id="modal-title">Konfirmasi</h4>
+            <h4 class="fw-bold" id="modal-title">Konfirmasi Tindakan</h4>
             <p class="text-muted mb-4" id="modal-message"></p>
             <div class="d-flex gap-3 justify-content-center">
               <button
                 type="button"
-                class="btn btn-light px-4 py-2"
+                class="btn btn-light px-4 py-2 rounded-pill"
                 data-bs-dismiss="modal"
               >
                 Batal
               </button>
               <button
                 type="button"
-                class="btn btn-danger px-4 py-2"
+                class="btn btn-danger px-4 py-2 rounded-pill"
                 id="confirmActionBtn"
               >
-                Ya, Lanjutkan
+                Lanjutkan
               </button>
             </div>
           </div>
@@ -573,23 +1078,33 @@
       </div>
     </div>
 
+    <!-- Toast Container -->
     <div
       id="toast"
       class="position-fixed bottom-0 end-0 p-3"
       style="z-index: 9999"
     ></div>
 
+    <!-- Bootstrap 5 Bundle JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
-      // 1. Firebase Initialization
+      // 1. Firebase Initialization (Menggunakan konfigurasi asli dari user)
       const firebaseConfig = {
         apiKey: "AIzaSyCQg3p8eOJS_HBiYcPq_BfAOyIftTIz1bI",
         databaseURL:
           "https://smartlockrizkimaulanay-default-rtdb.asia-southeast1.firebasedatabase.app/",
       };
-      firebase.initializeApp(firebaseConfig);
-      const db = firebase.database();
 
+      // Amankan jika Firebase v8 gagal memuat
+      try {
+        firebase.initializeApp(firebaseConfig);
+        var db = firebase.database();
+      } catch (err) {
+        console.error("Firebase SDK Load Error:", err);
+      }
+
+      // App State
       let pendingAction = null;
       let editMode = false;
       let editingUserId = null;
@@ -598,10 +1113,26 @@
       );
 
       let allLogs = [];
+      let filteredLogs = [];
+      let allUsers = [];
       let currentLogPage = 1;
       const logsPerPage = 10;
 
-      // --- UI Functions ---
+      // Clock function
+      setInterval(() => {
+        const d = new Date();
+        document.getElementById("current-time-txt").innerText =
+          d.toLocaleDateString("id-ID", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }) +
+          " - " +
+          d.toLocaleTimeString("id-ID");
+      }, 1000);
+
+      // --- GENERAL VIEW ROUTER ---
       function switchSection(sectionId, element) {
         document
           .querySelectorAll(".nav-item")
@@ -622,287 +1153,26 @@
       function showToast(message, type = "success") {
         const toastContainer = document.getElementById("toast");
         const id = "t-" + Date.now();
-        toastContainer.innerHTML = `<div id="${id}" class="alert alert-${type === "success" ? "success" : "danger"} shadow-lg border-0 mb-2"><i class="fas ${type === "success" ? "fa-check-circle" : "fa-exclamation-circle"} me-2"></i>${message}</div>`;
-        setTimeout(() => document.getElementById(id)?.remove(), 3000);
+        const icon =
+          type === "success" ? "fa-check-circle" : "fa-exclamation-circle";
+        const bgColor = type === "success" ? "bg-success" : "bg-danger";
+
+        toastContainer.innerHTML += `
+          <div id="${id}" class="alert alert-success shadow-lg border-0 mb-2 text-white ${bgColor}" style="min-width: 250px;">
+            <div class="d-flex align-items-center">
+              <i class="fas ${icon} me-2"></i>
+              <div class="flex-grow-1">${message}</div>
+              <button type="button" class="btn-close btn-close-white ms-2" onclick="document.getElementById('${id}').remove()"></button>
+            </div>
+          </div>`;
+        setTimeout(() => document.getElementById(id)?.remove(), 3500);
       }
 
-      function setupModal(icon, title, message, action) {
-        document.getElementById("modal-icon").innerHTML = icon;
+      function setupModal(iconHtml, title, message, action) {
+        document.getElementById("modal-icon").innerHTML = iconHtml;
         document.getElementById("modal-title").innerText = title;
         document.getElementById("modal-message").innerText = message;
         pendingAction = action;
-      }
-
-      // --- LOG LOGIC ---
-      function parseDate(dateStr) {
-        if (!dateStr) return new Date(0);
-        try {
-          const parts = dateStr.split(" ");
-          if (parts.length < 3) return new Date(0);
-          const dmy = parts[1].split("/");
-          const hms = parts[2].split(":");
-          return new Date(dmy[2], dmy[1] - 1, dmy[0], hms[0], hms[1], hms[2]);
-        } catch (e) {
-          return new Date(0);
-        }
-      }
-
-      db.ref("Monitoring").on("value", (snapshot) => {
-        const rawData = [];
-        let localGranted = 0,
-          localDenied = 0;
-        if (snapshot.exists()) {
-          snapshot.forEach((childSnapshot) => {
-            if (childSnapshot.key !== "lastPhoto") {
-              const data = childSnapshot.val();
-              rawData.push({ key: childSnapshot.key, ...data });
-              if (data.status === "Akses Diterima") localGranted++;
-              else localDenied++;
-            }
-          });
-        }
-        allLogs = rawData.sort((a, b) => {
-          const dateA = parseDate(a.waktu);
-          const dateB = parseDate(b.waktu);
-          if (dateB.getTime() !== dateA.getTime())
-            return dateB.getTime() - dateA.getTime();
-          return b.key.localeCompare(a.key);
-        });
-        document.getElementById("stat-access-granted").innerText = localGranted;
-        document.getElementById("stat-access-denied").innerText = localDenied;
-        renderLogTable();
-      });
-
-      function renderLogTable() {
-        const tableBody = document.getElementById("table-body");
-        const paginationInfo = document.getElementById("pagination-info");
-        const paginationList = document.getElementById("log-pagination");
-        tableBody.innerHTML = "";
-        if (allLogs.length === 0) {
-          tableBody.innerHTML =
-            '<tr><td colspan="6" class="text-center py-5 text-muted">Belum ada data riwayat.</td></tr>';
-          paginationInfo.innerText = "Data: 0";
-          paginationList.innerHTML = "";
-          return;
-        }
-        const totalPages = Math.ceil(allLogs.length / logsPerPage);
-        if (currentLogPage > totalPages) currentLogPage = totalPages || 1;
-        const startIndex = (currentLogPage - 1) * logsPerPage;
-        const pageData = allLogs.slice(startIndex, startIndex + logsPerPage);
-
-        pageData.forEach((data) => {
-          const isSuccess = data.status === "Akses Diterima";
-          const isUnregistered =
-            !data.nama ||
-            data.nama.toLowerCase().includes("tidak terdaftar") ||
-            data.nama.toLowerCase().includes("unknown") ||
-            data.nama.toLowerCase().includes("tak dikenal");
-          const displayName = isUnregistered
-            ? '<span class="text-danger fw-bold"><i class="fas fa-user-secret me-1"></i>Tak Terdaftar</span>'
-            : data.nama;
-
-          tableBody.innerHTML += `
-            <tr class="${isUnregistered ? "unregistered-row" : ""}">
-              <td class="ps-4 text-muted small">${data.waktu || "-"}</td>
-              <td class="fw-bold">${displayName}</td>
-              <td><code>${data.uid}</code></td>
-              <td><span class="small text-muted"><i class="fas fa-map-marker-alt me-1"></i> ${data.lokasi || "Pintu Lab"}</span></td>
-              <td>
-                <span class="badge badge-pill ${isSuccess ? "bg-success" : "bg-danger"} bg-opacity-10 text-${isSuccess ? "success" : "danger"} border border-${isSuccess ? "success" : "danger"} border-opacity-25">
-                   <i class="fas ${isSuccess ? "fa-check-circle" : "fa-times-circle"} me-1"></i>${data.status}
-                </span>
-              </td>
-              <td class="pe-4 text-end">
-                <button class="btn btn-sm btn-outline-danger border-0 rounded-circle" onclick="deleteSingleLog('${data.key}')">
-                    <i class="fas fa-trash"></i>
-                </button>
-              </td>
-            </tr>`;
-        });
-        paginationInfo.innerText = `Menampilkan ${startIndex + 1}-${Math.min(startIndex + logsPerPage, allLogs.length)} dari ${allLogs.length}`;
-        renderPaginationControls(totalPages);
-      }
-
-      function renderPaginationControls(totalPages) {
-        const paginationList = document.getElementById("log-pagination");
-        paginationList.innerHTML = "";
-        if (totalPages <= 1) return;
-        for (let i = 1; i <= totalPages; i++) {
-          paginationList.innerHTML += `<li class="page-item ${currentLogPage === i ? "active" : ""}"><a class="page-link shadow-none" onclick="changeLogPage(${i})">${i}</a></li>`;
-        }
-      }
-
-      function changeLogPage(page) {
-        currentLogPage = page;
-        renderLogTable();
-      }
-
-      function deleteSingleLog(id) {
-        setupModal(
-          '<i class="fas fa-trash-alt fa-4x text-danger"></i>',
-          "Hapus Baris Log?",
-          "Data ini akan hilang permanen dari riwayat.",
-          () => {
-            db.ref("Monitoring/" + id)
-              .remove()
-              .then(() => showToast("Satu log dihapus"));
-          },
-        );
-        confirmModal.show();
-      }
-
-      function confirmClearLogs() {
-        setupModal(
-          '<i class="fas fa-broom fa-4x text-warning"></i>',
-          "Bersihkan Semua Log?",
-          "Semua riwayat akses akan dihapus. Foto terakhir tetap tersimpan.",
-          () => {
-            db.ref("Monitoring")
-              .once("value")
-              .then((snap) => {
-                snap.forEach((child) => {
-                  if (child.key !== "lastPhoto") child.ref.remove();
-                });
-                showToast("Log berhasil dibersihkan");
-                currentLogPage = 1;
-              });
-          },
-        );
-        confirmModal.show();
-      }
-
-      // Real-time Last Photo
-      db.ref("Monitoring/lastPhoto").on("value", (snapshot) => {
-        if (snapshot.exists()) {
-          const data = snapshot.val();
-          document.getElementById("last-photo").src = data.photo;
-          const date = new Date(Number(data.timestamp));
-          document.getElementById("photo-time").innerText =
-            "Waktu: " +
-            date.toLocaleTimeString("id-ID") +
-            " (" +
-            date.toLocaleDateString("id-ID") +
-            ")";
-        }
-      });
-
-      // --- USER MANAGEMENT ---
-      function saveUser() {
-        const nama = document.getElementById("userName").value.trim();
-        const uid = document
-          .getElementById("userUID")
-          .value.toUpperCase()
-          .trim();
-        if (!nama || !uid)
-          return showToast("Isi nama dan UID dengan lengkap!", "error");
-
-        const cleanId = uid.replace(/\s/g, "_");
-
-        if (editMode && editingUserId) {
-          // Jika UID berubah saat edit, hapus data lama
-          if (editingUserId !== cleanId) {
-            db.ref("Users/" + editingUserId).remove();
-          }
-          db.ref("Users/" + cleanId)
-            .update({
-              nama: nama,
-              uid: uid,
-              updatedAt: new Date().toISOString(),
-            })
-            .then(() => {
-              showToast("User berhasil diperbarui!");
-              cancelEdit();
-            });
-        } else {
-          db.ref("Users/" + cleanId)
-            .set({
-              nama: nama,
-              uid: uid,
-              createdAt: new Date().toISOString(),
-            })
-            .then(() => {
-              showToast("User baru berhasil disimpan!");
-              document.getElementById("userName").value = "";
-              document.getElementById("userUID").value = "";
-            });
-        }
-      }
-
-      function editUser(id, nama, uid) {
-        editMode = true;
-        editingUserId = id;
-        document.getElementById("userName").value = nama;
-        document.getElementById("userUID").value = uid;
-        document.getElementById("form-title").innerHTML =
-          '<span><i class="fas fa-user-edit text-warning me-2"></i>Edit Data User</span>';
-        document.getElementById("btn-save-user").innerHTML =
-          '<i class="fas fa-sync-alt me-2"></i>Update Data';
-        document.getElementById("btn-save-user").className =
-          "btn btn-warning btn-lg flex-grow-1 text-white fw-bold";
-        document.getElementById("btn-cancel-edit").classList.remove("d-none");
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }
-
-      function cancelEdit() {
-        editMode = false;
-        editingUserId = null;
-        document.getElementById("userName").value = "";
-        document.getElementById("userUID").value = "";
-        document.getElementById("form-title").innerHTML =
-          '<span><i class="fas fa-id-card text-primary me-2"></i>Registrasi User</span>';
-        document.getElementById("btn-save-user").innerHTML =
-          '<i class="fas fa-save me-2"></i>Simpan User';
-        document.getElementById("btn-save-user").className =
-          "btn btn-primary btn-lg flex-grow-1";
-        document.getElementById("btn-cancel-edit").classList.add("d-none");
-      }
-
-      db.ref("Users").on("value", (snapshot) => {
-        const userList = document.getElementById("user-list");
-        userList.innerHTML = "";
-        let count = 0;
-        snapshot.forEach((childSnapshot) => {
-          count++;
-          const user = childSnapshot.val();
-          userList.innerHTML += `
-            <li class="list-group-item d-flex justify-content-between align-items-center py-3 px-4">
-              <div class="d-flex align-items-center">
-                <div class="avatar-circle bg-light me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; border-radius: 50%">
-                    <i class="fas fa-user text-primary"></i>
-                </div>
-                <div>
-                    <div class="fw-bold">${user.nama}</div>
-                    <div class="small text-muted font-monospace">${user.uid}</div>
-                </div>
-              </div>
-              <div class="btn-group gap-1">
-                <button class="btn btn-sm btn-outline-primary border-0 rounded-circle" style="width: 36px; height: 36px;" onclick="editUser('${childSnapshot.key}', '${user.nama}', '${user.uid}')">
-                    <i class="fas fa-edit"></i>
-                </button>
-                <button class="btn btn-sm btn-outline-danger border-0 rounded-circle" style="width: 36px; height: 36px;" onclick="promptDeleteUser('${childSnapshot.key}')">
-                    <i class="fas fa-user-minus"></i>
-                </button>
-              </div>
-            </li>`;
-        });
-        document.getElementById("stat-total-users").innerText = count;
-      });
-
-      function promptDeleteUser(id) {
-        setupModal(
-          '<i class="fas fa-user-slash fa-4x text-danger"></i>',
-          "Hapus User?",
-          "Pengguna ini tidak akan bisa lagi mengakses Lab.",
-          () => {
-            db.ref("Users/" + id)
-              .remove()
-              .then(() => {
-                showToast("User dihapus");
-                if (editingUserId === id) cancelEdit();
-              });
-          },
-        );
-        confirmModal.show();
       }
 
       document
@@ -914,6 +1184,681 @@
             pendingAction = null;
           }
         });
+
+      // --- PARSE DATE UTIL ---
+      // Fungsi ini mengekstrak string "Hari, DD/MM/YYYY HH:MM:SS" (Contoh: "Senin, 22/5/2026 00:45:49")
+      // Menjadi object JavaScript Date yang valid untuk keperluan sorting log dari terbaru.
+      function parseDate(dateStr) {
+        if (!dateStr) return new Date(0);
+        try {
+          let cleanStr = dateStr;
+          // Buang nama hari sebelum tanda koma (Contoh: "Senin, 22/5/2026 00:45:49" -> "22/5/2026 00:45:49")
+          const commaIdx = cleanStr.indexOf(",");
+          if (commaIdx !== -1) {
+            cleanStr = cleanStr.substring(commaIdx + 1).trim();
+          }
+
+          const parts = cleanStr.split(" ");
+          if (parts.length < 2) return new Date(0);
+
+          const dmy = parts[0].split("/");
+          const hms = parts[1].split(":");
+
+          const day = parseInt(dmy[0], 10);
+          const month = parseInt(dmy[1], 10) - 1; // Bulan di Javascript dimulai dari 0
+          const year = parseInt(dmy[2], 10);
+
+          const hour = parseInt(hms[0], 10);
+          const minute = parseInt(hms[1], 10);
+          const second = parseInt(hms[2], 10);
+
+          return new Date(year, month, day, hour, minute, second);
+        } catch (e) {
+          console.error("Error parsing date:", e, "Input string was:", dateStr);
+          return new Date(0);
+        }
+      }
+
+      // --- DATABASE SYNC: MONITORING LOGS ---
+      db.ref("Monitoring").on("value", (snapshot) => {
+        const rawData = [];
+        let localGranted = 0;
+        let localDenied = 0;
+
+        if (snapshot.exists()) {
+          snapshot.forEach((childSnapshot) => {
+            if (childSnapshot.key !== "lastPhoto") {
+              const data = childSnapshot.val();
+              rawData.push({ key: childSnapshot.key, ...data });
+              if (data.status === "Akses Diterima") {
+                localGranted++;
+              } else {
+                localDenied++;
+              }
+            }
+          });
+        }
+
+        // Sorting log secara DESCENDING (Terbaru akan muncul pertama di paling atas)
+        allLogs = rawData.sort((a, b) => {
+          const dateA = parseDate(a.waktu);
+          const dateB = parseDate(b.waktu);
+          return dateB.getTime() - dateA.getTime();
+        });
+
+        document.getElementById("stat-total-logs").innerText = allLogs.length;
+        document.getElementById("stat-access-granted").innerText = localGranted;
+        document.getElementById("stat-access-denied").innerText = localDenied;
+
+        // Render data ke tabel
+        filterAndRenderLogs();
+        renderQuickDashboardLogs();
+      });
+
+      // Render log versi mini untuk panel dashboard aktivitas terakhir
+      function renderQuickDashboardLogs() {
+        const container = document.getElementById("quick-log-body");
+        container.innerHTML = "";
+
+        const latestLogs = allLogs.slice(0, 5);
+        if (latestLogs.length === 0) {
+          container.innerHTML = `<tr><td colspan="3" class="text-center py-4 text-muted">Belum ada aktivitas terekam.</td></tr>`;
+          return;
+        }
+
+        latestLogs.forEach((log) => {
+          const isSuccess = log.status === "Akses Diterima";
+          const badgeColor = isSuccess
+            ? "bg-success text-success"
+            : "bg-danger text-danger";
+          const name = log.nama || "Unknown";
+
+          // Ambil bagian jam saja secara aman menggunakan Regular Expression
+          let timeOnly = "-";
+          if (log.waktu) {
+            const match = log.waktu.match(/\d{2}:\d{2}:\d{2}/);
+            timeOnly = match ? match[0] : log.waktu;
+          }
+
+          container.innerHTML += `
+            <tr>
+              <td class="text-muted small">${timeOnly}</td>
+              <td class="fw-bold">${name}</td>
+              <td>
+                <span class="badge ${badgeColor} bg-opacity-10" style="font-size: 0.75rem;">
+                  ${isSuccess ? "Diterima" : "Ditolak"}
+                </span>
+              </td>
+            </tr>`;
+        });
+      }
+
+      // Filter & render log pencarian halaman utama log
+      function filterAndRenderLogs() {
+        const searchInput = document
+          .getElementById("search-log")
+          .value.toLowerCase();
+        const filterStatus = document.getElementById("filter-log-status").value;
+
+        filteredLogs = allLogs.filter((log) => {
+          const nameMatch = log.nama
+            ? log.nama.toLowerCase().includes(searchInput)
+            : false;
+          const uidMatch = log.uid
+            ? log.uid.toLowerCase().includes(searchInput)
+            : false;
+          const idMatch = log.id
+            ? log.id.toLowerCase().includes(searchInput)
+            : false;
+
+          const statusMatch =
+            filterStatus === "ALL" || log.status === filterStatus;
+
+          return (nameMatch || uidMatch || idMatch) && statusMatch;
+        });
+
+        renderLogTable();
+      }
+
+      function resetLogFilters() {
+        document.getElementById("search-log").value = "";
+        document.getElementById("filter-log-status").value = "ALL";
+        filterAndRenderLogs();
+      }
+
+      function renderLogTable() {
+        const tableBody = document.getElementById("table-log-body");
+        const paginationInfo = document.getElementById("pagination-info");
+        const paginationList = document.getElementById("log-pagination");
+        tableBody.innerHTML = "";
+
+        if (filteredLogs.length === 0) {
+          tableBody.innerHTML =
+            '<tr><td colspan="7" class="text-center py-5 text-muted">Belum ada data riwayat atau pencarian tidak ditemukan.</td></tr>';
+          paginationInfo.innerText = "Data: 0";
+          paginationList.innerHTML = "";
+          return;
+        }
+
+        const totalPages = Math.ceil(filteredLogs.length / logsPerPage);
+        if (currentLogPage > totalPages) currentLogPage = totalPages || 1;
+        const startIndex = (currentLogPage - 1) * logsPerPage;
+        const pageData = filteredLogs.slice(
+          startIndex,
+          startIndex + logsPerPage,
+        );
+
+        pageData.forEach((data) => {
+          const isSuccess = data.status === "Akses Diterima";
+          const isUnregistered =
+            !data.nama ||
+            data.nama.toLowerCase().includes("tidak terdaftar") ||
+            data.nama.toLowerCase().includes("unknown") ||
+            data.nama.toLowerCase().includes("tak dikenal");
+
+          const displayName = isUnregistered
+            ? '<span class="text-danger fw-bold"><i class="fas fa-user-secret me-1"></i>Tak Terdaftar</span>'
+            : data.nama;
+
+          tableBody.innerHTML += `
+            <tr class="${isUnregistered ? "unregistered-row" : ""}">
+              <td class="ps-4 text-muted small">${data.waktu || "-"}</td>
+              <td class="fw-bold">${displayName}</td>
+              <td><code>${data.uid || "-"}</code></td>
+              <td><span class="text-secondary fw-semibold">${data.id || "-"}</span></td>
+              <td><span class="small text-muted"><i class="fas fa-map-marker-alt me-1"></i> ${data.lokasi || "Pintu Lab"}</span></td>
+              <td>
+                <span class="badge ${isSuccess ? "bg-success text-success" : "bg-danger text-danger"} bg-opacity-10 border border-${isSuccess ? "success" : "danger"} border-opacity-25" style="border-radius: 50px;">
+                  <i class="fas ${isSuccess ? "fa-check-circle" : "fa-times-circle"} me-1"></i>${data.status}
+                </span>
+              </td>
+              <td class="pe-4 text-end">
+                <button class="btn btn-sm btn-outline-danger border-0 rounded-circle" onclick="deleteSingleLog('${data.key}')" title="Hapus Log">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            </tr>`;
+        });
+
+        paginationInfo.innerText = `Menampilkan ${startIndex + 1}-${Math.min(startIndex + logsPerPage, filteredLogs.length)} dari ${filteredLogs.length} entri`;
+        renderPaginationControls(totalPages);
+      }
+
+      function renderPaginationControls(totalPages) {
+        const paginationList = document.getElementById("log-pagination");
+        paginationList.innerHTML = "";
+        if (totalPages <= 1) return;
+
+        for (let i = 1; i <= totalPages; i++) {
+          paginationList.innerHTML += `
+            <li class="page-item ${currentLogPage === i ? "active" : ""}">
+              <a class="page-link shadow-none" href="javascript:void(0)" onclick="changeLogPage(${i})">${i}</a>
+            </li>`;
+        }
+      }
+
+      function changeLogPage(page) {
+        currentLogPage = page;
+        renderLogTable();
+      }
+
+      // Delete single access log entry
+      function deleteSingleLog(id) {
+        setupModal(
+          '<i class="fas fa-trash-alt fa-4x text-danger"></i>',
+          "Hapus Baris Log?",
+          "Log riwayat akses terpilih ini akan dihapus permanen dari database.",
+          () => {
+            db.ref("Monitoring/" + id)
+              .remove()
+              .then(() => {
+                showToast("Log terpilih berhasil dihapus.");
+              });
+          },
+        );
+        confirmModal.show();
+      }
+
+      // Clear all logs
+      function confirmClearLogs() {
+        setupModal(
+          '<i class="fas fa-broom fa-4x text-warning"></i>',
+          "Bersihkan Semua Log?",
+          "Semua riwayat akses akan dihapus total. Tangkapan kamera terakhir tetap disimpan.",
+          () => {
+            db.ref("Monitoring")
+              .once("value")
+              .then((snap) => {
+                snap.forEach((child) => {
+                  if (child.key !== "lastPhoto") child.ref.remove();
+                });
+                showToast("Seluruh riwayat log berhasil dibersihkan");
+                currentLogPage = 1;
+              });
+          },
+        );
+        confirmModal.show();
+      }
+
+      // Real-time Photo Monitor
+      db.ref("Monitoring/lastPhoto").on("value", (snapshot) => {
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          document.getElementById("last-photo").src =
+            data.photo ||
+            "https://placehold.co/640x360/1e293b/ffffff?text=Kamera+Offline";
+
+          let ts = Number(data.timestamp);
+          let date;
+
+          // Analisis cerdas format timestamp dari ESP32 / ESP32-CAM:
+          // 1. Jika di bawah 10.000.000.000 tapi di atas 1.000.000.000, itu Unix Epoch dalam detik -> Kalikan 1000
+          // 2. Jika di bawah 1.000.000.000, itu adalah millis() / uptime ESP32 -> Gunakan waktu browser saat ini (real-time sinkron)
+          // 3. Jika di atas 10.000.000.000, itu Epoch milidetik standar -> Gunakan langsung
+          if (ts < 10000000000) {
+            if (ts > 1000000000) {
+              date = new Date(ts * 1000); // Detik ke Milidetik
+            } else {
+              // Uptime millis() ESP32, fallback ke waktu penerimaan data real-time di browser
+              date = new Date();
+            }
+          } else {
+            date = new Date(ts); // Milidetik standar
+          }
+
+          if (!isNaN(date.getTime())) {
+            const formattedTime = date.toLocaleDateString("id-ID", {
+              weekday: "long",
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+            });
+            document.getElementById("photo-time").innerText =
+              formattedTime + " WIB";
+          } else {
+            document.getElementById("photo-time").innerText =
+              "Waktu Tidak Valid";
+          }
+        }
+      });
+
+      // --- DATABASE SYNC: MASTER USERS ---
+      db.ref("Users").on("value", (snapshot) => {
+        allUsers = [];
+        if (snapshot.exists()) {
+          snapshot.forEach((childSnapshot) => {
+            allUsers.push({ key: childSnapshot.key, ...childSnapshot.val() });
+          });
+        }
+
+        document.getElementById("stat-total-users").innerText = allUsers.length;
+        renderUserTable(allUsers);
+      });
+
+      function renderUserTable(dataList) {
+        const tableBody = document.getElementById("user-table-body");
+        tableBody.innerHTML = "";
+
+        if (dataList.length === 0) {
+          tableBody.innerHTML =
+            '<tr><td colspan="5" class="text-center py-5 text-muted">Belum ada data pengguna yang tersimpan.</td></tr>';
+          return;
+        }
+
+        dataList.forEach((user) => {
+          let roleBadgeColor = "bg-secondary";
+          if (user.peran === "Guru") roleBadgeColor = "bg-success";
+          else if (user.peran === "Staf")
+            roleBadgeColor = "bg-warning text-dark";
+          else if (user.peran === "Siswa") roleBadgeColor = "bg-primary";
+
+          tableBody.innerHTML += `
+            <tr>
+              <td class="ps-4">
+                <div class="d-flex align-items-center">
+                  <div class="rounded-circle bg-light me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                    <i class="fas fa-user text-primary"></i>
+                  </div>
+                  <div>
+                    <div class="fw-bold">${user.nama}</div>
+                    <div class="text-muted small" style="font-size: 0.75rem;">Terdaftar: ${user.createdAt ? new Date(user.createdAt).toLocaleDateString("id-ID") : "-"}</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="text-secondary fw-semibold">${user.idCard || "-"}</span></td>
+              <td><span class="badge ${roleBadgeColor} bg-opacity-10 text-opacity-100 px-3 py-2" style="font-size: 0.75rem;">${user.peran || "Siswa"}</span></td>
+              <td><code>${user.uid}</code></td>
+              <td class="pe-4 text-end">
+                <div class="btn-group gap-1">
+                  <button class="btn btn-sm btn-outline-primary border-0 rounded-circle" style="width: 36px; height: 36px;" onclick="editUser('${user.key}', '${user.nama}', '${user.uid}', '${user.peran}', '${user.idCard}')" title="Edit Pengguna">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger border-0 rounded-circle" style="width: 36px; height: 36px;" onclick="promptDeleteUser('${user.key}')" title="Hapus Pengguna">
+                    <i class="fas fa-user-minus"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>`;
+        });
+      }
+
+      // Save User Data (Create / Update)
+      function saveUser() {
+        const nama = document.getElementById("userName").value.trim();
+        const idCard =
+          document.getElementById("userIDCard").value.trim() || "-";
+        const peran = document.getElementById("userRole").value;
+        const uid = document
+          .getElementById("userUID")
+          .value.toUpperCase()
+          .trim();
+
+        if (!nama || !uid) {
+          return showToast(
+            "Isi setidaknya Nama dan UID Kartu dengan lengkap!",
+            "error",
+          );
+        }
+
+        const cleanId = uid.replace(/\s/g, "_"); // ID database ramah spasi
+
+        if (editMode && editingUserId) {
+          if (editingUserId !== cleanId) {
+            db.ref("Users/" + editingUserId).remove();
+          }
+
+          db.ref("Users/" + cleanId)
+            .set({
+              nama: nama,
+              uid: uid,
+              idCard: idCard,
+              peran: peran,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            })
+            .then(() => {
+              showToast("Data master pengguna berhasil diperbarui!");
+              cancelEdit();
+            });
+        } else {
+          db.ref("Users/" + cleanId)
+            .set({
+              nama: nama,
+              uid: uid,
+              idCard: idCard,
+              peran: peran,
+              createdAt: new Date().toISOString(),
+            })
+            .then(() => {
+              showToast("Pengguna baru berhasil ditambahkan!");
+              document.getElementById("userName").value = "";
+              document.getElementById("userIDCard").value = "";
+              document.getElementById("userUID").value = "";
+            });
+        }
+      }
+
+      function editUser(id, nama, uid, peran, idCard) {
+        editMode = true;
+        editingUserId = id;
+        document.getElementById("userName").value = nama;
+        document.getElementById("userIDCard").value =
+          idCard === "-" ? "" : idCard;
+        document.getElementById("userRole").value = peran || "Siswa";
+        document.getElementById("userUID").value = uid;
+
+        document.getElementById("form-title").innerHTML =
+          '<span><i class="fas fa-user-edit text-warning me-2"></i>Edit Pengguna</span>';
+        document.getElementById("btn-save-user").innerHTML =
+          '<i class="fas fa-sync-alt me-2"></i>Update Pengguna';
+        document.getElementById("btn-save-user").className =
+          "btn btn-warning text-white btn-lg";
+        document.getElementById("btn-cancel-edit").classList.remove("d-none");
+
+        switchSection("users-man", document.getElementById("nav-users-man"));
+      }
+
+      function cancelEdit() {
+        editMode = false;
+        editingUserId = null;
+        document.getElementById("userName").value = "";
+        document.getElementById("userIDCard").value = "";
+        document.getElementById("userRole").value = "Siswa";
+        document.getElementById("userUID").value = "";
+
+        document.getElementById("form-title").innerHTML =
+          '<span><i class="fas fa-user-plus text-primary me-2"></i>Registrasi Pengguna</span>';
+        document.getElementById("btn-save-user").innerHTML =
+          '<i class="fas fa-save me-2"></i>Simpan Pengguna';
+        document.getElementById("btn-save-user").className =
+          "btn btn-primary btn-lg";
+        document.getElementById("btn-cancel-edit").classList.add("d-none");
+      }
+
+      function promptDeleteUser(id) {
+        setupModal(
+          '<i class="fas fa-user-slash fa-4x text-danger"></i>',
+          "Hapus Pengguna?",
+          "Data Master pengguna ini akan dihapus. Akses ke Lab Komputer ditolak setelah tindakan ini.",
+          () => {
+            db.ref("Users/" + id)
+              .remove()
+              .then(() => {
+                showToast("Data master pengguna telah dihapus.");
+                if (editingUserId === id) cancelEdit();
+              });
+          },
+        );
+        confirmModal.show();
+      }
+
+      // --- UNREGISTERED RFID REAL-TIME DETECTOR & SIMULATOR LOGIC ---
+
+      // Node "ScanAntrean" akan digunakan untuk menyimpan pengetukan kartu tak dikenal secara langsung dari alat IoT atau simulator
+      db.ref("ScanAntrean").on("value", (snapshot) => {
+        const container = document.getElementById("scan-state-container");
+        const badgeDot = document.getElementById("scan-badge-dot");
+
+        if (snapshot.exists()) {
+          const scanData = snapshot.val();
+          badgeDot.classList.remove("d-none"); // Tampilkan badge merah
+
+          container.innerHTML = `
+            <div class="p-3 text-start bg-danger bg-opacity-10 rounded-4 border border-danger border-opacity-25" style="animation: fadeIn 0.3s ease;">
+              <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2 border-danger border-opacity-10">
+                <span class="badge bg-danger text-uppercase px-3 py-1.5 rounded-pill animate-pulse">
+                  <span class="spinner-grow spinner-grow-sm me-1" style="width:10px; height:10px;" role="status"></span> Kartu Baru Terdeteksi
+                </span>
+                <span class="text-muted small fw-semibold">${scanData.waktuScanned || "Baru Saja"}</span>
+              </div>
+              <div class="mb-4">
+                <label class="small text-muted d-block uppercase fw-bold mb-1">UID Kartu (RFID)</label>
+                <div class="d-flex align-items-center gap-2">
+                  <h3 class="mb-0 font-monospace text-primary fw-bold bg-white p-2.5 rounded-3 border w-100">${scanData.uid}</h3>
+                  <button class="btn btn-outline-secondary py-2 px-3" onclick="copyUIDToClipboard('${scanData.uid}')" title="Salin UID">
+                    <i class="far fa-copy"></i>
+                  </button>
+                </div>
+              </div>
+              <p class="small text-muted mb-4">
+                Pilih tindakan di bawah ini untuk kartu dengan UID <code>${scanData.uid}</code>. Tindakan pendaftaran akan otomatis mengisi UID ke formulir pendaftaran pengguna.
+              </p>
+              <div class="d-flex gap-2">
+                <button class="btn btn-primary flex-grow-1 py-2.5" onclick="daftarkanScanBaru('${scanData.uid}')">
+                  <i class="fas fa-plus-circle me-1"></i> Daftarkan Sekarang
+                </button>
+                <button class="btn btn-outline-danger py-2.5 px-4" onclick="abaikanScanBaru()">
+                  Abaikan Kartu
+                </button>
+              </div>
+            </div>`;
+        } else {
+          badgeDot.classList.add("d-none"); // Sembunyikan badge merah
+          container.innerHTML = `
+            <div class="radar-signal">
+              <div class="radar-wave"></div>
+              <i class="fas fa-rss fa-3x"></i>
+            </div>
+            <h5 class="fw-bold text-dark mt-3">Menunggu Pemindaian Kartu...</h5>
+            <p class="text-muted small mx-auto mb-4" style="max-width: 400px;">
+              Tempelkan kartu RFID baru yang belum terdaftar di mesin pintu Lab Komputer. Kartu yang terdeteksi akan langsung muncul di halaman ini.
+            </p>`;
+        }
+      });
+
+      // Salin UID Kartu ke clipboard
+      function copyUIDToClipboard(uidText) {
+        const el = document.createElement("textarea");
+        el.value = uidText;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand("copy");
+        document.body.removeChild(el);
+        showToast("UID disalin ke clipboard!");
+      }
+
+      // Tindakan mendaftarkan kartu
+      function daftarkanScanBaru(uid) {
+        document.getElementById("userUID").value = uid;
+        document.getElementById("userName").focus();
+
+        db.ref("ScanAntrean").remove();
+
+        switchSection("users-man", document.getElementById("nav-users-man"));
+        showToast("Formulir pendaftaran telah diisi dengan UID: " + uid);
+      }
+
+      // Tindakan mengabaikan/menghapus kartu baru dari antrean
+      function abaikanScanBaru() {
+        setupModal(
+          '<i class="fas fa-times-circle fa-4x text-danger"></i>',
+          "Abaikan Kartu Ini?",
+          "Kartu ini akan dihapus dari antrean deteksi real-time. Anda tetap dapat mendaftarkannya nanti secara manual.",
+          () => {
+            db.ref("ScanAntrean")
+              .remove()
+              .then(() => {
+                showToast("Antrean kartu baru berhasil diabaikan.");
+              });
+          },
+        );
+        confirmModal.show();
+      }
+
+      // --- SIMULASI PEMINDAIAN KARTU ---
+      function generateSimulatedUID() {
+        const hex = "0123456789ABCDEF";
+        let generated = "";
+        for (let i = 0; i < 4; i++) {
+          generated +=
+            hex[Math.floor(Math.random() * 16)] +
+            hex[Math.floor(Math.random() * 16)];
+          if (i < 3) generated += " ";
+        }
+        document.getElementById("sim-custom-uid").value = generated;
+      }
+
+      function triggerScanSimulation() {
+        const uid = document.getElementById("sim-custom-uid").value;
+        if (!uid) {
+          return showToast(
+            "Silakan klik 'Acak' terlebih dahulu untuk membuat UID simulasi!",
+            "error",
+          );
+        }
+
+        const d = new Date();
+        const pad = (n) => String(n).padStart(2, "0");
+        const formatScannedTime = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+
+        db.ref("ScanAntrean")
+          .set({
+            uid: uid,
+            waktuScanned: formatScannedTime,
+            timestamp: Date.now(),
+          })
+          .then(() => {
+            showToast("Simulasi Tap berhasil dikirim ke database!");
+          });
+      }
+
+      // --- DATABASE SYNC: WIFI SYSTEM STATUS ---
+      db.ref("SystemStatus").on("value", (snapshot) => {
+        const badge = document.getElementById("wifi-status-badge");
+        const text = document.getElementById("wifi-status-text");
+        const icon = document.getElementById("wifi-status-icon");
+
+        if (snapshot.exists()) {
+          const status = snapshot.val();
+          const isConnected = status.wifi_connected;
+          const ssid = status.ssid || "Tidak Diketahui";
+
+          if (
+            isConnected === true ||
+            isConnected === "CONNECTED" ||
+            isConnected === 1
+          ) {
+            badge.className =
+              "badge bg-success bg-opacity-10 text-success border border-success border-opacity-20 w-100 py-2 d-block text-truncate";
+            icon.className = "fas fa-wifi me-1";
+            text.innerHTML = `Terkoneksi: <strong>${ssid}</strong>`;
+          } else {
+            badge.className =
+              "badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-20 w-100 py-2 d-block";
+            icon.className = "fas fa-wifi-slash me-1";
+            text.innerHTML = `Terputus`;
+          }
+        } else {
+          // Fallback Default jika ESP32 belum pernah online untuk menulis ke path SystemStatus
+          badge.className =
+            "badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-20 w-100 py-2 d-block";
+          icon.className = "fas fa-exclamation-triangle me-1";
+          text.innerHTML = `Offline / Belum Ada Data`;
+        }
+      });
+
+      window.onload = function () {
+        generateSimulatedUID();
+      };
+
+      // --- EXPORT LOG TO CSV FUNCTION ---
+      function exportLogsToCSV() {
+        if (allLogs.length === 0) {
+          return showToast("Tidak ada data untuk diekspor!", "error");
+        }
+
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += "Waktu,Nama,UID,ID Identitas,Lokasi,Status\n";
+
+        allLogs.forEach((log) => {
+          const row = [
+            `"${log.waktu || ""}"`,
+            `"${log.nama || "Tak Terdaftar"}"`,
+            `"${log.uid || ""}"`,
+            `"${log.id || "-"}"`,
+            `"${log.lokasi || "Pintu Lab"}"`,
+            `"${log.status || ""}"`,
+          ].join(",");
+          csvContent += row + "\n";
+        });
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute(
+          "download",
+          "Log_Akses_SmartLock_" +
+            new Date().toISOString().split("T")[0] +
+            ".csv",
+        );
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showToast("Log berhasil diekspor ke CSV!");
+      }
     </script>
   </body>
 </html>
