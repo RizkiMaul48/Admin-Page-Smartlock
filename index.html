@@ -190,7 +190,7 @@
         align-items: center;
       }
 
-      /* Camera Widget styling... */
+      /* Camera Widget */
       .cam-wrapper {
         background: #000;
         border-radius: 16px;
@@ -398,6 +398,13 @@
           transform: scale(1.8);
           opacity: 0;
         }
+      }
+
+      .scan-progress-container {
+        height: 6px;
+        background-color: rgba(0, 0, 0, 0.05);
+        border-radius: 10px;
+        overflow: hidden;
       }
     </style>
   </head>
@@ -722,9 +729,9 @@
                   >
                   <select id="userRole" class="form-select form-select-lg">
                     <option value="Kepala Sekolah">Kepala Sekolah</option>
-                    <option value="Siswa" selected>Siswa</option>
                     <option value="Guru">Guru</option>
-                    <option value="Staf">Staf TU / Laboran</option>
+                    <option value="Staf">Staf TU / Lab</option>
+                    <option value="Siswa" selected>Siswa</option>
                     <option value="Tamu">Tamu Khusus</option>
                   </select>
                 </div>
@@ -981,8 +988,8 @@
             >
               <div class="card-header bg-transparent border-0 pb-1 pt-2">
                 <h6 class="fw-bold text-secondary mb-0">
-                  <i class="fas fa-magic text-warning me-2"></i>Simulator
-                  Pengetukan Alat
+                  <i class="fas fa-magic text-warning me-2"></i>Simulator Tap
+                  RFID
                 </h6>
               </div>
               <div class="card-body">
@@ -1118,6 +1125,12 @@
       let currentLogPage = 1;
       const logsPerPage = 10;
 
+      // Variables for real-time card timer
+      let lastScanUid = null;
+      let scanReceivedTime = null;
+      let activeScanInterval = null;
+      const SCAN_TIMEOUT_SECONDS = 30;
+
       // Clock function
       setInterval(() => {
         const d = new Date();
@@ -1186,13 +1199,10 @@
         });
 
       // --- PARSE DATE UTIL ---
-      // Fungsi ini mengekstrak string "Hari, DD/MM/YYYY HH:MM:SS" (Contoh: "Senin, 22/5/2026 00:45:49")
-      // Menjadi object JavaScript Date yang valid untuk keperluan sorting log dari terbaru.
       function parseDate(dateStr) {
         if (!dateStr) return new Date(0);
         try {
           let cleanStr = dateStr;
-          // Buang nama hari sebelum tanda koma (Contoh: "Senin, 22/5/2026 00:45:49" -> "22/5/2026 00:45:49")
           const commaIdx = cleanStr.indexOf(",");
           if (commaIdx !== -1) {
             cleanStr = cleanStr.substring(commaIdx + 1).trim();
@@ -1205,7 +1215,7 @@
           const hms = parts[1].split(":");
 
           const day = parseInt(dmy[0], 10);
-          const month = parseInt(dmy[1], 10) - 1; // Bulan di Javascript dimulai dari 0
+          const month = parseInt(dmy[1], 10) - 1;
           const year = parseInt(dmy[2], 10);
 
           const hour = parseInt(hms[0], 10);
@@ -1239,7 +1249,6 @@
           });
         }
 
-        // Sorting log secara DESCENDING (Terbaru akan muncul pertama di paling atas)
         allLogs = rawData.sort((a, b) => {
           const dateA = parseDate(a.waktu);
           const dateB = parseDate(b.waktu);
@@ -1250,12 +1259,10 @@
         document.getElementById("stat-access-granted").innerText = localGranted;
         document.getElementById("stat-access-denied").innerText = localDenied;
 
-        // Render data ke tabel
         filterAndRenderLogs();
         renderQuickDashboardLogs();
       });
 
-      // Render log versi mini untuk panel dashboard aktivitas terakhir
       function renderQuickDashboardLogs() {
         const container = document.getElementById("quick-log-body");
         container.innerHTML = "";
@@ -1273,7 +1280,6 @@
             : "bg-danger text-danger";
           const name = log.nama || "Unknown";
 
-          // Ambil bagian jam saja secara aman menggunakan Regular Expression
           let timeOnly = "-";
           if (log.waktu) {
             const match = log.waktu.match(/\d{2}:\d{2}:\d{2}/);
@@ -1293,7 +1299,6 @@
         });
       }
 
-      // Filter & render log pencarian halaman utama log
       function filterAndRenderLogs() {
         const searchInput = document
           .getElementById("search-log")
@@ -1402,7 +1407,6 @@
         renderLogTable();
       }
 
-      // Delete single access log entry
       function deleteSingleLog(id) {
         setupModal(
           '<i class="fas fa-trash-alt fa-4x text-danger"></i>',
@@ -1419,7 +1423,6 @@
         confirmModal.show();
       }
 
-      // Clear all logs
       function confirmClearLogs() {
         setupModal(
           '<i class="fas fa-broom fa-4x text-warning"></i>',
@@ -1451,19 +1454,14 @@
           let ts = Number(data.timestamp);
           let date;
 
-          // Analisis cerdas format timestamp dari ESP32 / ESP32-CAM:
-          // 1. Jika di bawah 10.000.000.000 tapi di atas 1.000.000.000, itu Unix Epoch dalam detik -> Kalikan 1000
-          // 2. Jika di bawah 1.000.000.000, itu adalah millis() / uptime ESP32 -> Gunakan waktu browser saat ini (real-time sinkron)
-          // 3. Jika di atas 10.000.000.000, itu Epoch milidetik standar -> Gunakan langsung
           if (ts < 10000000000) {
             if (ts > 1000000000) {
-              date = new Date(ts * 1000); // Detik ke Milidetik
+              date = new Date(ts * 1000);
             } else {
-              // Uptime millis() ESP32, fallback ke waktu penerimaan data real-time di browser
               date = new Date();
             }
           } else {
-            date = new Date(ts); // Milidetik standar
+            date = new Date(ts);
           }
 
           if (!isNaN(date.getTime())) {
@@ -1545,6 +1543,19 @@
         });
       }
 
+      function filterUserList() {
+        const query = document
+          .getElementById("search-user")
+          .value.toLowerCase();
+        const filtered = allUsers.filter(
+          (user) =>
+            user.nama.toLowerCase().includes(query) ||
+            user.uid.toLowerCase().includes(query) ||
+            (user.idCard && user.idCard.toLowerCase().includes(query)),
+        );
+        renderUserTable(filtered);
+      }
+
       // Save User Data (Create / Update)
       function saveUser() {
         const nama = document.getElementById("userName").value.trim();
@@ -1563,7 +1574,7 @@
           );
         }
 
-        const cleanId = uid.replace(/\s/g, "_"); // ID database ramah spasi
+        const cleanId = uid.replace(/\s/g, "_");
 
         if (editMode && editingUserId) {
           if (editingUserId !== cleanId) {
@@ -1655,25 +1666,53 @@
         confirmModal.show();
       }
 
-      // --- UNREGISTERED RFID REAL-TIME DETECTOR & SIMULATOR LOGIC ---
+      // --- UNREGISTERED RFID REAL-TIME DETECTOR & COUNTDOWN LOGIC ---
 
-      // Node "ScanAntrean" akan digunakan untuk menyimpan pengetukan kartu tak dikenal secara langsung dari alat IoT atau simulator
       db.ref("ScanAntrean").on("value", (snapshot) => {
         const container = document.getElementById("scan-state-container");
         const badgeDot = document.getElementById("scan-badge-dot");
 
+        // Clear existing ticker interval if any
+        if (activeScanInterval) {
+          clearInterval(activeScanInterval);
+          activeScanInterval = null;
+        }
+
         if (snapshot.exists()) {
           const scanData = snapshot.val();
-          badgeDot.classList.remove("d-none"); // Tampilkan badge merah
+          badgeDot.classList.remove("d-none");
+
+          // Check if this is a newly arrived scan or the same one
+          if (scanData.uid !== lastScanUid) {
+            lastScanUid = scanData.uid;
+            scanReceivedTime = Date.now(); // Start 30 seconds timer from exact arrival
+          }
+
+          // Initial calculation
+          const initialElapsed = Math.floor(
+            (Date.now() - scanReceivedTime) / 1000,
+          );
+          const initialRemaining = Math.max(
+            0,
+            SCAN_TIMEOUT_SECONDS - initialElapsed,
+          );
 
           container.innerHTML = `
             <div class="p-3 text-start bg-danger bg-opacity-10 rounded-4 border border-danger border-opacity-25" style="animation: fadeIn 0.3s ease;">
-              <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2 border-danger border-opacity-10">
+              <div class="d-flex align-items-center justify-content-between mb-2 pb-2">
                 <span class="badge bg-danger text-uppercase px-3 py-1.5 rounded-pill animate-pulse">
                   <span class="spinner-grow spinner-grow-sm me-1" style="width:10px; height:10px;" role="status"></span> Kartu Baru Terdeteksi
                 </span>
-                <span class="text-muted small fw-semibold">${scanData.waktuScanned || "Baru Saja"}</span>
+                <span class="badge bg-warning text-dark font-monospace" id="scan-countdown-badge">
+                  <i class="fas fa-hourglass-half me-1"></i>Sisa: ${initialRemaining}s
+                </span>
               </div>
+              
+              <!-- Real-time progress bar countdown -->
+              <div class="scan-progress-container mb-3">
+                <div id="scan-countdown-progress" class="progress-bar bg-danger h-100" style="width: ${(initialRemaining / SCAN_TIMEOUT_SECONDS) * 100}%; transition: width 1s linear;"></div>
+              </div>
+
               <div class="mb-4">
                 <label class="small text-muted d-block uppercase fw-bold mb-1">UID Kartu (RFID)</label>
                 <div class="d-flex align-items-center gap-2">
@@ -1687,16 +1726,54 @@
                 Pilih tindakan di bawah ini untuk kartu dengan UID <code>${scanData.uid}</code>. Tindakan pendaftaran akan otomatis mengisi UID ke formulir pendaftaran pengguna.
               </p>
               <div class="d-flex gap-2">
-                <button class="btn btn-primary flex-grow-1 py-2.5" onclick="daftarkanScanBaru('${scanData.uid}')">
+                <button class="btn btn-primary flex-grow-1 py-2.5 animate-pulse" onclick="daftarkanScanBaru('${scanData.uid}')">
                   <i class="fas fa-plus-circle me-1"></i> Daftarkan Sekarang
                 </button>
                 <button class="btn btn-outline-danger py-2.5 px-4" onclick="abaikanScanBaru()">
-                  Abaikan Kartu
+                  Abaikan
                 </button>
               </div>
             </div>`;
+
+          // Setup real-time dynamic countdown updater (every 1 second)
+          activeScanInterval = setInterval(() => {
+            const elapsed = Math.floor((Date.now() - scanReceivedTime) / 1000);
+            const remaining = Math.max(0, SCAN_TIMEOUT_SECONDS - elapsed);
+
+            const badgeElement = document.getElementById(
+              "scan-countdown-badge",
+            );
+            const progressElement = document.getElementById(
+              "scan-countdown-progress",
+            );
+
+            if (badgeElement) {
+              badgeElement.innerHTML = `<i class="fas fa-hourglass-half me-1"></i>Sisa: ${remaining}s`;
+            }
+            if (progressElement) {
+              const percentage = (remaining / SCAN_TIMEOUT_SECONDS) * 100;
+              progressElement.style.width = `${percentage}%`;
+            }
+
+            // If time is up, auto-clear from database
+            if (remaining <= 0) {
+              clearInterval(activeScanInterval);
+              activeScanInterval = null;
+
+              // Clear current queue to automatically close popup
+              db.ref("ScanAntrean")
+                .remove()
+                .then(() => {
+                  showToast(
+                    "Waktu pendaftaran kartu habis (30 detik). Status otomatis diabaikan.",
+                    "error",
+                  );
+                });
+            }
+          }, 1000);
         } else {
-          badgeDot.classList.add("d-none"); // Sembunyikan badge merah
+          badgeDot.classList.add("d-none");
+          lastScanUid = null;
           container.innerHTML = `
             <div class="radar-signal">
               <div class="radar-wave"></div>
@@ -1725,6 +1802,11 @@
         document.getElementById("userUID").value = uid;
         document.getElementById("userName").focus();
 
+        // Stop timer & clear queue
+        if (activeScanInterval) {
+          clearInterval(activeScanInterval);
+          activeScanInterval = null;
+        }
         db.ref("ScanAntrean").remove();
 
         switchSection("users-man", document.getElementById("nav-users-man"));
@@ -1738,6 +1820,10 @@
           "Abaikan Kartu Ini?",
           "Kartu ini akan dihapus dari antrean deteksi real-time. Anda tetap dapat mendaftarkannya nanti secara manual.",
           () => {
+            if (activeScanInterval) {
+              clearInterval(activeScanInterval);
+              activeScanInterval = null;
+            }
             db.ref("ScanAntrean")
               .remove()
               .then(() => {
@@ -1812,7 +1898,6 @@
             text.innerHTML = `Terputus`;
           }
         } else {
-          // Fallback Default jika ESP32 belum pernah online untuk menulis ke path SystemStatus
           badge.className =
             "badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-20 w-100 py-2 d-block";
           icon.className = "fas fa-exclamation-triangle me-1";
