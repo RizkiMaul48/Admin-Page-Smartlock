@@ -34,14 +34,19 @@
         --sidebar-width: 280px;
         --dark-navy: #0f172a;
         --light-bg: #f8fafc;
+        --card-bg: #ffffff;
+        --text-main: #1e293b;
+        --text-muted: #64748b;
+        --border-color: #f1f5f9;
         --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
         --premium-shadow: 0 10px 30px rgba(79, 70, 229, 0.15);
+        --table-th-bg: #f8fafc;
       }
 
       body {
         font-family: "Inter", sans-serif;
         background-color: var(--light-bg);
-        color: #1e293b;
+        color: var(--text-main);
         margin: 0;
         overflow-x: hidden;
       }
@@ -160,7 +165,8 @@
         border: none;
         border-radius: 16px;
         box-shadow: var(--card-shadow);
-        background: white;
+        background: var(--card-bg);
+        color: var(--text-main);
         padding: 1.5rem;
         height: 100%;
         transition:
@@ -177,14 +183,16 @@
         border: none;
         border-radius: 16px;
         box-shadow: var(--card-shadow);
+        background: var(--card-bg);
         margin-bottom: 2rem;
         overflow: hidden;
       }
 
       .card-header {
-        background-color: #fff;
+        background-color: var(--card-bg);
+        color: var(--text-main);
         font-weight: 700;
-        border-bottom: 1px solid #f1f5f9;
+        border-bottom: 1px solid var(--border-color);
         padding: 1.25rem 1.5rem;
         display: flex;
         justify-content: space-between;
@@ -265,20 +273,41 @@
 
       /* Tables Design */
       .table thead th {
-        background-color: #f8fafc;
+        background-color: var(--table-th-bg);
         text-transform: uppercase;
         font-size: 0.75rem;
         font-weight: 700;
-        color: #64748b;
+        color: var(--text-muted);
         padding: 1.1rem 1rem;
-        border-bottom: 2px solid #e2e8f0;
+        border-bottom: 2px solid var(--border-color);
       }
 
       .table tbody td {
         padding: 1.1rem 1rem;
         vertical-align: middle;
-        border-bottom: 1px solid #f1f5f9;
+        border-bottom: 1px solid var(--border-color);
+        color: var(--text-main);
         font-size: 0.9rem;
+      }
+
+      /* Form Elements Compatibility */
+      .form-control,
+      .form-select,
+      .input-group-text {
+        background-color: var(--card-bg) !important;
+        color: var(--text-main) !important;
+        border-color: var(--border-color) !important;
+      }
+      .form-control::placeholder {
+        color: var(--text-muted) !important;
+        opacity: 0.6;
+      }
+      .form-control:focus,
+      .form-select:focus {
+        background-color: var(--card-bg) !important;
+        color: var(--text-main) !important;
+        border-color: var(--primary-light) !important;
+        box-shadow: 0 0 0 0.25rem rgba(79, 70, 229, 0.15) !important;
       }
 
       /* Responsive Viewport Optimizations */
@@ -338,8 +367,8 @@
 
       .pagination-container {
         padding: 1.25rem 1.5rem;
-        background: #f8fafc;
-        border-top: 1px solid #e2e8f0;
+        background: var(--table-th-bg);
+        border-top: 1px solid var(--border-color);
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -360,7 +389,7 @@
       /* Mencegah iOS Safari Auto-Zoom di Input Kolom */
       .form-control,
       .form-select {
-        font-size: 1rem !important; /* Minimal 16px untuk standard kegunaan mobile */
+        font-size: 1rem !important; /* Minimal 16px untuk standard mobile */
       }
 
       code {
@@ -370,9 +399,6 @@
         border-radius: 6px;
         font-size: 0.85rem;
         border: 1px solid #fbcfe8;
-        font-family:
-          SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
-          "Courier New", monospace;
       }
 
       /* Radar pulsing styling for Scan Page */
@@ -644,8 +670,8 @@
           <!-- Last Detected Face Feed -->
           <div class="col-lg-7">
             <div class="card border-0 h-100">
-              <div class="card-header bg-white">
-                <span class="fs-6 text-dark fw-bold">
+              <div class="card-header">
+                <span class="fs-6 fw-bold">
                   <i class="fas fa-camera text-primary me-2"></i>Tangkapan
                   Kamera Terakhir
                 </span>
@@ -681,8 +707,8 @@
           <!-- Quick Access Logs Panel -->
           <div class="col-lg-5">
             <div class="card border-0 h-100">
-              <div class="card-header bg-white">
-                <span class="fs-6 text-dark fw-bold">
+              <div class="card-header">
+                <span class="fs-6 fw-bold">
                   <i class="fas fa-bolt text-warning me-2"></i>Aktivitas
                   Terakhir
                 </span>
@@ -783,6 +809,20 @@
                     <option value="Tamu">Tamu Khusus</option>
                   </select>
                 </div>
+                <div class="mb-3">
+                  <label class="form-label fw-semibold small"
+                    >Status Aktivasi Kartu</label
+                  >
+                  <select
+                    id="userActivation"
+                    class="form-select form-select-lg"
+                  >
+                    <option value="Aktif" selected>
+                      Aktif (Akses Diterima)
+                    </option>
+                    <option value="Nonaktif">Nonaktif (Akses Ditolak)</option>
+                  </select>
+                </div>
                 <div class="mb-4">
                   <label
                     class="form-label fw-semibold small d-flex justify-content-between"
@@ -824,7 +864,7 @@
           <!-- List Section -->
           <div class="col-xl-8">
             <div class="card">
-              <div class="card-header bg-white py-3">
+              <div class="card-header py-3">
                 <div class="row w-100 g-3 align-items-center">
                   <div class="col-md-6 col-12">
                     <span class="fw-bold"
@@ -857,12 +897,13 @@
                         <th>ID / NIS</th>
                         <th>Peran</th>
                         <th>UID RFID</th>
+                        <th>Status Kartu</th>
                         <th class="pe-4 text-end">Aksi</th>
                       </tr>
                     </thead>
                     <tbody id="user-table-body">
                       <tr>
-                        <td colspan="5" class="text-center py-5 text-muted">
+                        <td colspan="6" class="text-center py-5 text-muted">
                           Belum ada data pengguna terdaftar.
                         </td>
                       </tr>
@@ -888,12 +929,6 @@
           <div
             class="col-md-4 col-12 text-start text-md-end d-flex gap-2 justify-content-md-end"
           >
-            <button
-              class="btn btn-success d-flex align-items-center justify-content-center gap-2 shadow-sm py-2 px-3 fs-6 flex-grow-1 flex-md-grow-0"
-              onclick="exportLogsToCSV()"
-            >
-              <i class="fas fa-file-excel"></i> Ekspor CSV
-            </button>
             <button
               class="btn btn-outline-danger d-flex align-items-center justify-content-center gap-2 shadow-sm py-2 px-3 fs-6 flex-grow-1 flex-md-grow-0"
               onclick="confirmClearLogs()"
@@ -1000,105 +1035,36 @@
           </div>
         </div>
 
-        <div class="row g-4">
-          <!-- Real-time Scanner Card -->
-          <div class="col-lg-7 col-12">
+        <div class="row g-4 justify-content-center">
+          <!-- Real-time Scanner Card (Sekarang 1 Kolom Penuh col-lg-8 agar Terpusat & Rapi) -->
+          <div class="col-lg-8 col-12">
             <div class="card border-0 shadow-sm h-100">
-              <div class="card-header bg-white py-3 border-0">
+              <div class="card-header py-3 border-0">
                 <span class="fs-6 text-dark fw-bold text-primary">
                   <i class="fas fa-satellite-dish me-2"></i>Status Antrean
                   Deteksi Kartu
                 </span>
               </div>
               <div
-                class="card-body p-4 p-sm-5 text-center d-flex flex-column justify-content-center"
+                class="card-body p-4 p-sm-5 text-center d-flex flex-column justify-content-center align-items-center"
                 id="scan-state-container"
+                style="min-height: 350px"
               >
-                <!-- Listening state will dynamically change here via JavaScript -->
+                <!-- Listening state default standby radar -->
                 <div class="radar-signal">
                   <div class="radar-wave"></div>
                   <i class="fas fa-rss fa-3x"></i>
                 </div>
-                <h5 class="fw-bold text-dark mt-3">
-                  Menunggu Pemindaian Kartu...
-                </h5>
+                <h5 class="fw-bold mt-3">Menunggu Pemindaian Kartu...</h5>
                 <p
-                  class="text-muted small mx-auto mb-4"
+                  class="text-muted small mx-auto mb-0"
                   style="max-width: 400px"
                 >
                   Tempelkan kartu RFID baru yang belum terdaftar di mesin pintu
-                  Lab Komputer. Kartu yang terdeteksi akan langsung muncul di
-                  halaman ini.
+                  Lab Komputer. Kartu yang terdeteksi secara real-time akan
+                  langsung muncul di halaman ini dengan batas waktu respons 30
+                  detik.
                 </p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Simulation Tool on the scan page to test workflows without hardware -->
-          <div class="col-lg-5 col-12">
-            <div
-              class="card border-0 h-100 simulator-card p-3 shadow-sm d-flex flex-column justify-content-center"
-            >
-              <div class="card-header bg-transparent border-0 pb-1 pt-2">
-                <h6 class="fw-bold text-secondary mb-0">
-                  <i class="fas fa-magic text-warning me-2"></i>Simulator
-                  Pengetukan Alat
-                </h6>
-              </div>
-              <div class="card-body">
-                <p class="small text-muted mb-4">
-                  Gunakan simulator di bawah ini jika Anda ingin menyimulasikan
-                  kejadian ketika ada murid atau guru mengetuk kartu RFID baru
-                  yang belum terdaftar.
-                </p>
-
-                <div class="mb-3">
-                  <label class="form-label small fw-semibold text-muted"
-                    >Generate UID Acak</label
-                  >
-                  <div class="input-group">
-                    <input
-                      type="text"
-                      id="sim-custom-uid"
-                      class="form-control font-monospace"
-                      placeholder="Format: AB CD EF GH"
-                      readonly
-                    />
-                    <button
-                      class="btn btn-outline-secondary"
-                      onclick="generateSimulatedUID()"
-                    >
-                      <i class="fas fa-dice"></i> Acak
-                    </button>
-                  </div>
-                </div>
-
-                <button
-                  class="btn btn-primary w-100 py-2.5 fs-6"
-                  onclick="triggerScanSimulation()"
-                >
-                  <i class="fas fa-rss-square me-2"></i> Simulasikan Tap Kartu
-                  Baru
-                </button>
-
-                <div class="bg-light rounded p-3 mt-3">
-                  <span
-                    class="small d-block text-muted text-uppercase fw-bold mb-1"
-                    style="font-size: 10px"
-                    >Instruksi Demo</span
-                  >
-                  <p
-                    class="small mb-0 text-muted"
-                    style="font-size: 11px; line-height: 1.5"
-                  >
-                    1. Klik tombol <strong>Acak</strong> lalu klik
-                    <strong>Simulasikan Tap Kartu Baru</strong>.<br />
-                    2. Panel di sebelah kiri secara real-time akan berubah
-                    menampilkan info kartu baru tersebut.<br />
-                    3. Klik <strong>Daftarkan Sekarang</strong> untuk beralih ke
-                    Master Pengguna dengan UID terisi secara otomatis.
-                  </p>
-                </div>
               </div>
             </div>
           </div>
@@ -1183,6 +1149,7 @@
       let scanReceivedTime = null;
       let activeScanInterval = null;
       const SCAN_TIMEOUT_SECONDS = 30;
+      let currentScanData = null; // Menyimpan data scan aktif saat ini
 
       // Clock function
       setInterval(() => {
@@ -1216,6 +1183,7 @@
         }
       }
 
+      // Defensively close sidebar
       function toggleSidebar() {
         document.getElementById("sidebar").classList.toggle("show");
         document.getElementById("sidebarOverlay").classList.toggle("show");
@@ -1287,6 +1255,67 @@
         }
       }
 
+      // --- SINKRONISASI DETEKSI WAKTU TAP REAL-TIME PADA FRAME FOTO ---
+      function formatTapTime(waktuStr) {
+        if (!waktuStr) return "-";
+        try {
+          const commaIdx = waktuStr.indexOf(",");
+          if (commaIdx === -1) return waktuStr;
+
+          const hari = waktuStr.substring(0, commaIdx).trim();
+          const sisa = waktuStr.substring(commaIdx + 1).trim();
+
+          const parts = sisa.split(" ");
+          if (parts.length < 2) return waktuStr;
+
+          const dmy = parts[0].split("/");
+          const hms = parts[1];
+
+          const tgl = dmy[0];
+          const blnNum = parseInt(dmy[1], 10);
+          const thn = dmy[2];
+
+          const namaBulan = [
+            "Januari",
+            "Februari",
+            "Maret",
+            "April",
+            "Mei",
+            "Juni",
+            "Juli",
+            "Agustus",
+            "September",
+            "Oktober",
+            "November",
+            "Desember",
+          ];
+
+          const blnNama = namaBulan[blnNum - 1] || dmy[1];
+
+          let thnClean = thn;
+          if (parseInt(thn, 10) < 2000 || isNaN(parseInt(thn, 10))) {
+            thnClean = new Date().getFullYear();
+          }
+
+          return `${hari}, ${tgl} ${blnNama} ${thnClean} pukul ${hms} WIB`;
+        } catch (e) {
+          console.error("Gagal melakukan format waktu tap:", e);
+          return waktuStr;
+        }
+      }
+
+      function updateCameraTimestamp() {
+        const photoTimeEl = document.getElementById("photo-time");
+        if (!photoTimeEl) return;
+
+        if (allLogs && allLogs.length > 0) {
+          const latestLogWaktu = allLogs[0].waktu;
+          photoTimeEl.innerText = formatTapTime(latestLogWaktu);
+        } else {
+          photoTimeEl.innerText = "-";
+        }
+      }
+
       // --- DATABASE SYNC: MONITORING LOGS ---
       db.ref("Monitoring").on("value", (snapshot) => {
         const rawData = [];
@@ -1319,6 +1348,7 @@
 
         filterAndRenderLogs();
         renderQuickDashboardLogs();
+        updateCameraTimestamp();
       });
 
       function renderQuickDashboardLogs() {
@@ -1508,36 +1538,7 @@
           document.getElementById("last-photo").src =
             data.photo ||
             "https://placehold.co/640x360/1e293b/ffffff?text=Kamera+Offline";
-
-          let ts = Number(data.timestamp);
-          let date;
-
-          if (ts < 10000000000) {
-            if (ts > 1000000000) {
-              date = new Date(ts * 1000);
-            } else {
-              date = new Date();
-            }
-          } else {
-            date = new Date(ts);
-          }
-
-          if (!isNaN(date.getTime())) {
-            const formattedTime = date.toLocaleDateString("id-ID", {
-              weekday: "long",
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-              second: "2-digit",
-            });
-            document.getElementById("photo-time").innerText =
-              formattedTime + " WIB";
-          } else {
-            document.getElementById("photo-time").innerText =
-              "Waktu Tidak Valid";
-          }
+          updateCameraTimestamp();
         }
       });
 
@@ -1552,6 +1553,11 @@
 
         document.getElementById("stat-total-users").innerText = allUsers.length;
         renderUserTable(allUsers);
+
+        // FITUR SINKRONISASI AKTIVASI: Cek antrean rfid yang saat ini terpindai secara real-time
+        if (currentScanData) {
+          checkAndClearRegisteredScan(currentScanData);
+        }
       });
 
       function renderUserTable(dataList) {
@@ -1560,7 +1566,7 @@
 
         if (dataList.length === 0) {
           tableBody.innerHTML =
-            '<tr><td colspan="5" class="text-center py-5 text-muted">Belum ada data pengguna yang tersimpan.</td></tr>';
+            '<tr><td colspan="6" class="text-center py-5 text-muted">Belum ada data pengguna yang tersimpan.</td></tr>';
           return;
         }
 
@@ -1570,6 +1576,12 @@
           else if (user.peran === "Staf")
             roleBadgeColor = "bg-warning text-dark";
           else if (user.peran === "Siswa") roleBadgeColor = "bg-primary";
+
+          const activationStatus = user.statusAktivasi || "Aktif";
+          const activationBadge =
+            activationStatus === "Aktif"
+              ? '<span class="badge bg-success bg-opacity-10 text-success px-3 py-2" style="font-size: 0.75rem;"><i class="fas fa-check-circle me-1"></i>Aktif</span>'
+              : '<span class="badge bg-danger bg-opacity-10 text-danger px-3 py-2" style="font-size: 0.75rem;"><i class="fas fa-ban me-1"></i>Nonaktif</span>';
 
           tableBody.innerHTML += `
             <tr>
@@ -1587,9 +1599,10 @@
               <td><span class="text-secondary fw-semibold">${user.idCard || "-"}</span></td>
               <td><span class="badge ${roleBadgeColor} bg-opacity-10 text-opacity-100 px-3 py-2" style="font-size: 0.75rem;">${user.peran || "Siswa"}</span></td>
               <td><code>${user.uid}</code></td>
+              <td>${activationBadge}</td>
               <td class="pe-4 text-end">
                 <div class="btn-group gap-1">
-                  <button class="btn btn-sm btn-outline-primary border-0 rounded-circle" style="width: 36px; height: 36px;" onclick="editUser('${user.key}', '${user.nama}', '${user.uid}', '${user.peran}', '${user.idCard}')" title="Edit Pengguna">
+                  <button class="btn btn-sm btn-outline-primary border-0 rounded-circle" style="width: 36px; height: 36px;" onclick="editUser('${user.key}', '${user.nama}', '${user.uid}', '${user.peran}', '${user.idCard}', '${activationStatus}')" title="Edit Pengguna">
                     <i class="fas fa-edit"></i>
                   </button>
                   <button class="btn btn-sm btn-outline-danger border-0 rounded-circle" style="width: 36px; height: 36px;" onclick="promptDeleteUser('${user.key}')" title="Hapus Pengguna">
@@ -1614,12 +1627,12 @@
         renderUserTable(filtered);
       }
 
-      // Save User Data (Create / Update)
       function saveUser() {
         const nama = document.getElementById("userName").value.trim();
         const idCard =
           document.getElementById("userIDCard").value.trim() || "-";
         const peran = document.getElementById("userRole").value;
+        const activation = document.getElementById("userActivation").value;
         const uid = document
           .getElementById("userUID")
           .value.toUpperCase()
@@ -1645,6 +1658,7 @@
               uid: uid,
               idCard: idCard,
               peran: peran,
+              statusAktivasi: activation,
               createdAt: new Date().toISOString(),
               updatedAt: new Date().toISOString(),
             })
@@ -1659,6 +1673,7 @@
               uid: uid,
               idCard: idCard,
               peran: peran,
+              statusAktivasi: activation,
               createdAt: new Date().toISOString(),
             })
             .then(() => {
@@ -1666,17 +1681,19 @@
               document.getElementById("userName").value = "";
               document.getElementById("userIDCard").value = "";
               document.getElementById("userUID").value = "";
+              document.getElementById("userActivation").value = "Aktif";
             });
         }
       }
 
-      function editUser(id, nama, uid, peran, idCard) {
+      function editUser(id, nama, uid, peran, idCard, activation) {
         editMode = true;
         editingUserId = id;
         document.getElementById("userName").value = nama;
         document.getElementById("userIDCard").value =
           idCard === "-" ? "" : idCard;
         document.getElementById("userRole").value = peran || "Siswa";
+        document.getElementById("userActivation").value = activation || "Aktif";
         document.getElementById("userUID").value = uid;
 
         document.getElementById("form-title").innerHTML =
@@ -1696,6 +1713,7 @@
         document.getElementById("userName").value = "";
         document.getElementById("userIDCard").value = "";
         document.getElementById("userRole").value = "Siswa";
+        document.getElementById("userActivation").value = "Aktif";
         document.getElementById("userUID").value = "";
 
         document.getElementById("form-title").innerHTML =
@@ -1724,13 +1742,32 @@
         confirmModal.show();
       }
 
-      // --- UNREGISTERED RFID REAL-TIME DETECTOR & COUNTDOWN LOGIC ---
+      // --- SINKRONISASI VERIFIKASI ANTARA ANTRIAN SCAN & MASTER DATA USER ---
+      // Fungsi defensif: Jika kartu sudah terdaftar (baik status aktif maupun nonaktif),
+      // kartu tersebut tidak boleh muncul di antrean RFID baru.
+      function checkAndClearRegisteredScan(scanData) {
+        if (!scanData || !scanData.uid) return false;
+        const cleanScanUid = scanData.uid.replace(/[\s_]/g, "").toUpperCase();
 
+        const isAlreadyRegistered = allUsers.some((user) => {
+          if (!user.uid) return false;
+          const cleanUserUid = user.uid.replace(/[\s_]/g, "").toUpperCase();
+          return cleanUserUid === cleanScanUid;
+        });
+
+        if (isAlreadyRegistered) {
+          currentScanData = null;
+          db.ref("ScanAntrean").remove();
+          return true; // Berhasil mendeteksi dan menghapus
+        }
+        return false;
+      }
+
+      // --- UNREGISTERED RFID REAL-TIME DETECTOR & COUNTDOWN TIMER ---
       db.ref("ScanAntrean").on("value", (snapshot) => {
         const container = document.getElementById("scan-state-container");
         const badgeDot = document.getElementById("scan-badge-dot");
 
-        // Clear existing ticker interval if any
         if (activeScanInterval) {
           clearInterval(activeScanInterval);
           activeScanInterval = null;
@@ -1738,15 +1775,20 @@
 
         if (snapshot.exists()) {
           const scanData = snapshot.val();
-          badgeDot.classList.remove("d-none");
+          currentScanData = scanData;
 
-          // Check if this is a newly arrived scan or the same one
-          if (scanData.uid !== lastScanUid) {
-            lastScanUid = scanData.uid;
-            scanReceivedTime = Date.now(); // Start 30 seconds timer from exact arrival
+          // Jalankan proteksi: Jika sudah terdaftar (termasuk yang statusnya nonaktif), langsung hapus
+          if (checkAndClearRegisteredScan(scanData)) {
+            return;
           }
 
-          // Initial calculation
+          badgeDot.classList.remove("d-none");
+
+          if (scanData.uid !== lastScanUid) {
+            lastScanUid = scanData.uid;
+            scanReceivedTime = Date.now();
+          }
+
           const initialElapsed = Math.floor(
             (Date.now() - scanReceivedTime) / 1000,
           );
@@ -1754,21 +1796,23 @@
             0,
             SCAN_TIMEOUT_SECONDS - initialElapsed,
           );
+          const initialPercentage = Math.max(
+            0,
+            ((SCAN_TIMEOUT_SECONDS - initialElapsed) / SCAN_TIMEOUT_SECONDS) *
+              100,
+          );
 
           container.innerHTML = `
-            <div class="p-3 text-start bg-danger bg-opacity-10 rounded-4 border border-danger border-opacity-25" style="animation: fadeIn 0.3s ease;">
-              <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between gap-2 mb-2 pb-2">
+            <div class="p-3 text-start bg-danger bg-opacity-10 rounded-4 border border-danger border-opacity-25 w-100" style="animation: fadeIn 0.3s ease;">
+              <div class="d-flex align-items-center justify-content-between mb-2">
                 <span class="badge bg-danger text-uppercase px-3 py-1.5 rounded-pill animate-pulse">
                   <span class="spinner-grow spinner-grow-sm me-1" style="width:10px; height:10px;" role="status"></span> Kartu Baru Terdeteksi
                 </span>
-                <span class="badge bg-warning text-dark font-monospace align-self-start align-self-sm-auto" id="scan-countdown-badge">
-                  <i class="fas fa-hourglass-half me-1"></i>Sisa: ${initialRemaining}s
-                </span>
+                <span class="text-danger fw-bold font-monospace fs-5" id="scan-countdown-text">00:${String(initialRemaining).padStart(2, "0")}</span>
               </div>
               
-              <!-- Real-time progress bar countdown -->
-              <div class="scan-progress-container mb-3">
-                <div id="scan-countdown-progress" class="progress-bar bg-danger h-100" style="width: ${(initialRemaining / SCAN_TIMEOUT_SECONDS) * 100}%; transition: width 1s linear;"></div>
+              <div class="scan-progress-container mb-3" style="height: 6px; background-color: rgba(220, 53, 69, 0.1); border-radius: 10px; overflow: hidden;">
+                <div id="scan-countdown-progress" class="progress-bar bg-danger h-100" style="width: ${initialPercentage}%; transition: width 0.1s linear;"></div>
               </div>
 
               <div class="mb-4">
@@ -1793,53 +1837,56 @@
               </div>
             </div>`;
 
-          // Setup real-time dynamic countdown updater (every 1 second)
           activeScanInterval = setInterval(() => {
-            const elapsed = Math.floor((Date.now() - scanReceivedTime) / 1000);
-            const remaining = Math.max(0, SCAN_TIMEOUT_SECONDS - elapsed);
+            const elapsed = Date.now() - scanReceivedTime;
+            const remainingMs = Math.max(
+              0,
+              SCAN_TIMEOUT_SECONDS * 1000 - elapsed,
+            );
+            const remainingSecs = Math.ceil(remainingMs / 1000);
 
-            const badgeElement = document.getElementById(
-              "scan-countdown-badge",
+            const countdownTextEl = document.getElementById(
+              "scan-countdown-text",
             );
             const progressElement = document.getElementById(
               "scan-countdown-progress",
             );
 
-            if (badgeElement) {
-              badgeElement.innerHTML = `<i class="fas fa-hourglass-half me-1"></i>Sisa: ${remaining}s`;
+            if (countdownTextEl) {
+              countdownTextEl.innerText = `00:${String(remainingSecs).padStart(2, "0")}`;
             }
             if (progressElement) {
-              const percentage = (remaining / SCAN_TIMEOUT_SECONDS) * 100;
+              const percentage =
+                (remainingMs / (SCAN_TIMEOUT_SECONDS * 1000)) * 100;
               progressElement.style.width = `${percentage}%`;
             }
 
-            // If time is up, auto-clear from database
-            if (remaining <= 0) {
+            if (remainingMs <= 0) {
               clearInterval(activeScanInterval);
               activeScanInterval = null;
 
-              // Clear current queue to automatically close popup
               db.ref("ScanAntrean")
                 .remove()
                 .then(() => {
                   showToast(
-                    "Waktu pendaftaran kartu habis (30 detik). Status otomatis diabaikan.",
-                    "error",
+                    "Waktu pendaftaran habis (30 detik). Antrean deteksi diabaikan.",
+                    "danger",
                   );
                 });
             }
-          }, 1000);
+          }, 100);
         } else {
           badgeDot.classList.add("d-none");
           lastScanUid = null;
+          currentScanData = null;
           container.innerHTML = `
             <div class="radar-signal">
               <div class="radar-wave"></div>
               <i class="fas fa-rss fa-3x"></i>
             </div>
-            <h5 class="fw-bold text-dark mt-3">Menunggu Pemindaian Kartu...</h5>
-            <p class="text-muted small mx-auto mb-4" style="max-width: 400px;">
-              Tempelkan kartu RFID baru yang belum terdaftar di mesin pintu Lab Komputer. Kartu yang terdeteksi akan langsung muncul di halaman ini.
+            <h5 class="fw-bold mt-3">Menunggu Pemindaian Kartu...</h5>
+            <p class="text-muted small mx-auto mb-0" style="max-width: 400px;">
+              Tempelkan kartu RFID baru yang belum terdaftar di mesin pintu Lab Komputer. Kartu yang terdeteksi secara real-time akan langsung muncul di halaman ini dengan batas waktu respons 30 detik.
             </p>`;
         }
       });
@@ -1860,7 +1907,6 @@
         document.getElementById("userUID").value = uid;
         document.getElementById("userName").focus();
 
-        // Stop timer & clear queue
         if (activeScanInterval) {
           clearInterval(activeScanInterval);
           activeScanInterval = null;
@@ -1890,43 +1936,6 @@
           },
         );
         confirmModal.show();
-      }
-
-      // --- SIMULASI PEMINDAIAN KARTU ---
-      function generateSimulatedUID() {
-        const hex = "0123456789ABCDEF";
-        let generated = "";
-        for (let i = 0; i < 4; i++) {
-          generated +=
-            hex[Math.floor(Math.random() * 16)] +
-            hex[Math.floor(Math.random() * 16)];
-          if (i < 3) generated += " ";
-        }
-        document.getElementById("sim-custom-uid").value = generated;
-      }
-
-      function triggerScanSimulation() {
-        const uid = document.getElementById("sim-custom-uid").value;
-        if (!uid) {
-          return showToast(
-            "Silakan klik 'Acak' terlebih dahulu untuk membuat UID simulasi!",
-            "error",
-          );
-        }
-
-        const d = new Date();
-        const pad = (n) => String(n).padStart(2, "0");
-        const formatScannedTime = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-
-        db.ref("ScanAntrean")
-          .set({
-            uid: uid,
-            waktuScanned: formatScannedTime,
-            timestamp: Date.now(),
-          })
-          .then(() => {
-            showToast("Simulasi Tap berhasil dikirim ke database!");
-          });
       }
 
       // --- DATABASE SYNC: WIFI SYSTEM STATUS ---
@@ -1962,46 +1971,6 @@
           text.innerHTML = `Offline / Belum Ada Data`;
         }
       });
-
-      window.onload = function () {
-        generateSimulatedUID();
-      };
-
-      // --- EXPORT LOG TO CSV FUNCTION ---
-      function exportLogsToCSV() {
-        if (allLogs.length === 0) {
-          return showToast("Tidak ada data untuk diekspor!", "error");
-        }
-
-        let csvContent = "data:text/csv;charset=utf-8,";
-        csvContent += "Waktu,Nama,UID,ID Identitas,Lokasi,Status\n";
-
-        allLogs.forEach((log) => {
-          const row = [
-            `"${log.waktu || ""}"`,
-            `"${log.nama || "Tak Terdaftar"}"`,
-            `"${log.uid || ""}"`,
-            `"${log.id || "-"}"`,
-            `"${log.lokasi || "Pintu Lab"}"`,
-            `"${log.status || ""}"`,
-          ].join(",");
-          csvContent += row + "\n";
-        });
-
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute(
-          "download",
-          "Log_Akses_SmartLock_" +
-            new Date().toISOString().split("T")[0] +
-            ".csv",
-        );
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        showToast("Log berhasil diekspor ke CSV!");
-      }
     </script>
   </body>
 </html>
