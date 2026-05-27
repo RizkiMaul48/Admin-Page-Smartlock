@@ -929,6 +929,7 @@
           <div
             class="col-md-4 col-12 text-start text-md-end d-flex gap-2 justify-content-md-end"
           >
+            <!-- Tombol Ekspor CSV telah dihilangkan dari sini -->
             <button
               class="btn btn-outline-danger d-flex align-items-center justify-content-center gap-2 shadow-sm py-2 px-3 fs-6 flex-grow-1 flex-md-grow-0"
               onclick="confirmClearLogs()"
@@ -1192,12 +1193,19 @@
       function showToast(message, type = "success") {
         const toastContainer = document.getElementById("toast");
         const id = "t-" + Date.now();
-        const icon =
-          type === "success" ? "fa-check-circle" : "fa-exclamation-circle";
-        const bgColor = type === "success" ? "bg-success" : "bg-danger";
+        let icon = "fa-check-circle";
+        let bgColor = "bg-success";
+
+        if (type === "danger") {
+          icon = "fa-exclamation-circle";
+          bgColor = "bg-danger";
+        } else if (type === "primary" || type === "info" || type === "blue") {
+          icon = "fa-info-circle";
+          bgColor = "bg-primary";
+        }
 
         toastContainer.innerHTML += `
-          <div id="${id}" class="alert alert-success shadow-lg border-0 mb-2 text-white ${bgColor}" style="min-width: 250px;">
+          <div id="${id}" class="alert shadow-lg border-0 mb-2 text-white ${bgColor}" style="min-width: 250px;">
             <div class="d-flex align-items-center">
               <i class="fas ${icon} me-2"></i>
               <div class="flex-grow-1 small">${message}</div>
@@ -1304,6 +1312,7 @@
         }
       }
 
+      // Memperbarui tulisan waktu pada bingkai kamera Lab agar 100% presisi dengan log tap terakhir
       function updateCameraTimestamp() {
         const photoTimeEl = document.getElementById("photo-time");
         if (!photoTimeEl) return;
@@ -1413,6 +1422,7 @@
         renderLogTable();
       }
 
+      // Membersihkan filter pencarian log
       function resetLogFilters() {
         document.getElementById("search-log").value = "";
         document.getElementById("filter-log-status").value = "ALL";
@@ -1677,7 +1687,7 @@
               createdAt: new Date().toISOString(),
             })
             .then(() => {
-              showToast("Pengguna baru berhasil ditambahkan!");
+              showToast("Pengguna baru berhasil ditambahkan!", "primary");
               document.getElementById("userName").value = "";
               document.getElementById("userIDCard").value = "";
               document.getElementById("userUID").value = "";
@@ -1734,7 +1744,7 @@
             db.ref("Users/" + id)
               .remove()
               .then(() => {
-                showToast("Data master pengguna telah dihapus.");
+                showToast("Data master pengguna telah dihapus.", "danger");
                 if (editingUserId === id) cancelEdit();
               });
           },
@@ -1914,7 +1924,10 @@
         db.ref("ScanAntrean").remove();
 
         switchSection("users-man", document.getElementById("nav-users-man"));
-        showToast("Formulir pendaftaran telah diisi dengan UID: " + uid);
+        showToast(
+          "Formulir pendaftaran telah diisi dengan UID: " + uid,
+          "primary",
+        );
       }
 
       // Tindakan mengabaikan/menghapus kartu baru dari antrean
