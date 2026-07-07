@@ -1792,10 +1792,12 @@
       const SCAN_TIMEOUT_SECONDS = 30;
       let currentScanData = null;
 
-      // --- HELPER TO STANDARDIZE RFID UID STRINGS ---
+      // --- DRIFT WATCHDOG: NTP EMULATION GLOBALS ---
+      let dateTimeOffset = 0; // Kompensasi pergeseran RTC milidetik (Auto-Calibration)
+
+      // Helper untuk menormalisasi string RFID
       function cleanAndValidateRFID(val) {
         if (!val || val === "-" || val.trim() === "") return "-";
-        // Jika berupa Firebase UID bawaan 28-karakter, abaikan dan anggap kosong untuk mencegah salah kecocokan
         if (val.length > 20 && !val.includes(" ")) {
           return "-";
         }
@@ -1803,17 +1805,15 @@
       }
 
       // --- AUTO-HEALING SINKRONISASI PEMULIHAN SANGAT INTERAKTIF ---
-      // Fungsi ini dijalankan ketika admin sukses login secara Auth, tapi datanya terpisah atau dibuat manual di database
       function verifyAndHealAdmin(user) {
         return db
           .ref("Admins/" + user.uid)
           .once("value")
           .then((snapshot) => {
             if (snapshot.exists()) {
-              return true; // Cocok, data sudah ada di key UID yang benar
+              return true;
             }
 
-            // Jika tidak ada di UID, cari di seluruh node Admins apakah ada email yang sama (misal buatan manual)
             return db
               .ref("Admins")
               .once("value")
@@ -1836,7 +1836,6 @@
                 }
 
                 if (foundAdminData) {
-                  // Lakukan sinkronisasi pemulihan otomatis (Auto-Heal) ke key UID yang benar
                   return db
                     .ref("Admins/" + user.uid)
                     .set({
@@ -1857,7 +1856,6 @@
                       updatedAt: new Date().toISOString(),
                     })
                     .then(() => {
-                      // Hapus data lama yang salah key (misal nama/email manual) agar database bersih kembali
                       if (oldKey && oldKey !== user.uid) {
                         db.ref("Admins/" + oldKey).remove();
                       }
@@ -1865,7 +1863,7 @@
                     });
                 }
 
-                return false; // Email ini tidak terdaftar sama sekali di database Admin
+                return false;
               });
           });
       }
@@ -1880,10 +1878,8 @@
         if (user) {
           currentAdmin = user;
 
-          // Jalankan proses penyelarasan dan perbaikan database otomatis (Auto-Healing)
           verifyAndHealAdmin(user).then((isAdmin) => {
             if (!isAdmin) {
-              // Perlindungan: Jika ini akun registrasi baru, berikan kelonggaran waktu agar proses registrasi tidak langsung kick-out
               const creationTime = new Date(
                 user.metadata.creationTime || user.metadata.createdAt,
               ).getTime();
@@ -1901,13 +1897,11 @@
               return;
             }
 
-            // Jika admin sah, dengarkan perubahan data profilnya secara real-time
             db.ref("Admins/" + user.uid).on("value", (snapshot) => {
               let adminData = snapshot.val();
 
-              // SINKRONISASI PENGHAPUSAN: Jika admin dihapus dari database (Admins/{uid} tidak ada)
               if (!snapshot.exists()) {
-                db.ref("Admins/" + user.uid).off(); // Matikan listener
+                db.ref("Admins/" + user.uid).off();
                 auth.signOut().then(() => {
                   showToast(
                     "Akses Ditolak! Akun Anda telah dinonaktifkan atau dihapus dari database admin.",
@@ -1942,7 +1936,6 @@
                   ? ""
                   : cleanAndValidateRFID(adminData.rfid || adminData.uid);
 
-              // Atur status kecocokan kartu RFID Profil
               const badge = document.getElementById("profile-rfid-badge");
               const rfidVal = cleanAndValidateRFID(
                 adminData.rfid || adminData.uid,
@@ -1956,13 +1949,11 @@
               }
             });
 
-            // Pindah Tampilan ke Dashboard Utama
             viewLoading.classList.add("d-none");
             viewLogin.classList.add("d-none");
             viewRegister.classList.add("d-none");
             viewMain.classList.remove("d-none");
 
-            // Buka seksi dashboard default secara otomatis
             switchSection(
               "dashboard",
               document.getElementById("nav-dashboard"),
@@ -2006,7 +1997,6 @@
         auth
           .signInWithEmailAndPassword(email, password)
           .then((cred) => {
-            // Gunakan verifyAndHealAdmin untuk memeriksa dan mendaftarkan/menyelaraskan data secara otomatis
             return verifyAndHealAdmin(cred.user);
           })
           .then((isAdmin) => {
@@ -2037,7 +2027,7 @@
           });
       }
 
-      // --- REGISTER SUBMIT ACTION & AUTOMATIC ACCESS LINK ---
+      // --- REGISTER SUBMIT ACTION ---
       function handleRegister(event) {
         event.preventDefault();
         const name = document.getElementById("register-name").value.trim();
@@ -2052,7 +2042,6 @@
         btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> Mendaftarkan Admin...`;
         btn.disabled = true;
 
-        // Validasi real-time: Memeriksa apakah nama administrator tersebut sudah pernah terdaftar di database Admins
         db.ref("Admins")
           .once("value")
           .then((snapshot) => {
@@ -2078,7 +2067,7 @@
               };
             }
 
-            isRegistering = true; // Kunci sistem agar state-router tidak otomatis menendang keluar
+            isRegistering = true;
             return auth.createUserWithEmailAndPassword(email, password);
           })
           .then((cred) => {
@@ -2087,7 +2076,6 @@
               "https://api.dicebear.com/7.x/bottts/svg?seed=" +
               encodeURIComponent(name);
 
-            // 1. Simpan profil lengkap admin baru ke database Admins dengan key rfid dan uid ganda agar selaras
             return db
               .ref("Admins/" + user.uid)
               .set({
@@ -2099,14 +2087,13 @@
                 createdAt: new Date().toISOString(),
               })
               .then(() => {
-                // 2. Koneksi langsung mendaftarkan RFID ke Users utama (Hak Akses Pintu Fisik)
                 if (rfid && rfid !== "-") {
                   const cleanId = rfid.replace(/\s/g, "_");
                   return db.ref("Users/" + cleanId).set({
                     nama: name + " (Admin)",
                     uid: rfid,
                     idCard: "ADMIN-" + user.uid.substring(0, 5).toUpperCase(),
-                    peran: "Guru", // Peran 'Guru' otomatis memberikan akses penuh ke pintu
+                    peran: "Guru",
                     statusAktivasi: "Aktif",
                     createdAt: new Date().toISOString(),
                   });
@@ -2138,7 +2125,7 @@
               msg = err.message;
             }
             showToast(msg, "danger");
-            isRegistering = false; // Buka kunci jika gagal
+            isRegistering = false;
           })
           .finally(() => {
             btn.innerHTML = originalText;
@@ -2210,7 +2197,6 @@
         const file = event.target.files[0];
         if (!file) return;
 
-        // Validasi tipe berkas
         if (!file.type.startsWith("image/")) {
           showToast("Berkas harus berupa gambar!", "danger");
           return;
@@ -2220,15 +2206,13 @@
         reader.onload = function (e) {
           const img = new Image();
           img.onload = function () {
-            // Gambar kompresor menggunakan HTML5 Canvas
             const canvas = document.createElement("canvas");
             const ctx = canvas.getContext("2d");
-            const MAX_WIDTH = 300; // Ukuran ideal & efisien untuk database
+            const MAX_WIDTH = 300;
             const MAX_HEIGHT = 300;
             let width = img.width;
             let height = img.height;
 
-            // Pertahankan rasio aspek gambar
             if (width > height) {
               if (width > MAX_WIDTH) {
                 height *= MAX_WIDTH / width;
@@ -2245,10 +2229,7 @@
             canvas.height = height;
             ctx.drawImage(img, 0, 0, width, height);
 
-            // Ubah gambar menjadi Data URL Base64 dengan kualitas 75%
             const compressedBase64 = canvas.toDataURL("image/jpeg", 0.7);
-
-            // Atur input & tampilan visual
             document.getElementById("profile-avatar-display").src =
               compressedBase64;
             showToast(
@@ -2272,21 +2253,19 @@
             .getElementById("profile-rfid-input")
             .value.toUpperCase()
             .trim() || "-";
-        const photoUrl = document.getElementById("profile-avatar-display").src; // Membaca langsung dari avatar preview
+        const photoUrl = document.getElementById("profile-avatar-display").src;
         const btn = event.target.querySelector("button[type='submit']");
         const originalText = btn.innerHTML;
 
         btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> Menyimpan...`;
         btn.disabled = true;
 
-        // Ambil data admin lama terlebih dahulu untuk membandingkan RFID lama & baru
         db.ref("Admins/" + currentAdmin.uid)
           .once("value")
           .then((snapshot) => {
             const oldData = snapshot.val() || {};
             const oldRfid = cleanAndValidateRFID(oldData.rfid || oldData.uid);
 
-            // 1. Update data admin (ganda rfid dan uid)
             return db
               .ref("Admins/" + currentAdmin.uid)
               .update({
@@ -2297,7 +2276,6 @@
                 updatedAt: new Date().toISOString(),
               })
               .then(() => {
-                // 2. Sinkronisasikan secara otomatis dengan database Users Pintu Fisik
                 if (oldRfid && oldRfid !== "-" && oldRfid !== rfid) {
                   const oldCleanId = oldRfid.replace(/\s/g, "_");
                   db.ref("Users/" + oldCleanId).remove();
@@ -2436,7 +2414,6 @@
         const targetSec = document.getElementById("section-" + sectionId);
         if (targetSec) targetSec.classList.add("active");
 
-        // Defensively close sidebar only if currently visible and expanded on mobile
         const sidebar = document.getElementById("sidebar");
         if (
           window.innerWidth < 992 &&
@@ -2494,8 +2471,9 @@
           }
         });
 
-      // --- PARSE DATE UTIL ---
-      function parseDate(dateStr) {
+      // --- DRIFT WATCHDOG: PARSE & RECONSTRUCT DATE STRINGS ---
+      // Parser waktu mentah dari database
+      function parseRawDate(dateStr) {
         if (!dateStr) return new Date(0);
         try {
           let cleanStr = dateStr;
@@ -2504,47 +2482,78 @@
             cleanStr = cleanStr.substring(commaIdx + 1).trim();
           }
 
+          // Fallback jika tidak memiliki bagian jam
+          if (
+            !cleanStr.includes(" ") &&
+            (cleanStr.includes("/") || cleanStr.includes("-"))
+          ) {
+            cleanStr += " 00:00:00";
+          }
+
           const parts = cleanStr.split(" ");
           if (parts.length < 2) return new Date(0);
 
-          const dmy = parts[0].split("/");
+          const dmy = parts[0].includes("/")
+            ? parts[0].split("/")
+            : parts[0].split("-");
           const hms = parts[1].split(":");
 
-          const day = parseInt(dmy[0], 10);
-          const month = parseInt(dmy[1], 10) - 1;
-          const year = parseInt(dmy[2], 10);
+          let day, month, year;
 
-          const hour = parseInt(hms[0], 10);
-          const minute = parseInt(hms[1], 10);
-          const second = parseInt(hms[2], 10);
+          if (parts[0].includes("-")) {
+            // Format ISO YYYY-MM-DD
+            year = parseInt(dmy[0], 10);
+            month = parseInt(dmy[1], 10) - 1;
+            day = parseInt(dmy[2], 10);
+          } else {
+            // Format standard DD/MM/YYYY
+            day = parseInt(dmy[0], 10);
+            month = parseInt(dmy[1], 10) - 1;
+            year = parseInt(dmy[2], 10);
+          }
+
+          const hour = parseInt(hms[0], 10) || 0;
+          const minute = parseInt(hms[1], 10) || 0;
+          const second = parseInt(hms[2], 10) || 0;
+
+          // Proteksi kegagalan parsing ekstrim
+          if (isNaN(year) || year < 1970 || year > 9999)
+            year = new Date().getFullYear();
+          if (isNaN(month) || month < 0 || month > 11)
+            month = new Date().getMonth();
+          if (isNaN(day) || day < 1 || day > 31) day = new Date().getDate();
 
           return new Date(year, month, day, hour, minute, second);
         } catch (e) {
-          console.error("Error parsing date:", e, "Input string was:", dateStr);
           return new Date(0);
         }
       }
 
-      // --- SINKRONISASI DETEKSI WAKTU TAP REAL-TIME PADA FRAME FOTO ---
+      // Parser utama (Menggunakan kalibrasi pergeseran otomatis / Drift Compensation)
+      function parseDate(dateStr) {
+        const rawDate = parseRawDate(dateStr);
+        if (rawDate.getTime() === 0) return rawDate;
+
+        // Re-align waktu mentah ESP32 menggunakan kalibrasi drift otomatis
+        return new Date(rawDate.getTime() + dateTimeOffset);
+      }
+
+      // Format visual penanggalan menggunakan sistem kalender JS asli
       function formatTapTime(waktuStr) {
         if (!waktuStr) return "-";
         try {
-          const commaIdx = waktuStr.indexOf(",");
-          if (commaIdx === -1) return waktuStr;
+          const parsed = parseDate(waktuStr);
+          if (parsed.getTime() === 0) return waktuStr;
 
-          const hari = waktuStr.substring(0, commaIdx).trim();
-          const sisa = waktuStr.substring(commaIdx + 1).trim();
-
-          const parts = sisa.split(" ");
-          if (parts.length < 2) return waktuStr;
-
-          const dmy = parts[0].split("/");
-          const hms = parts[1];
-
-          const tgl = dmy[0];
-          const blnNum = parseInt(dmy[1], 10);
-          const thn = dmy[2];
-
+          const namaHari = [
+            "Minggu",
+            "Senin",
+            "Selasa",
+            "Rabu",
+            "Kamis",
+            "Jumat",
+            "Sabtu",
+          ];
           const namaBulan = [
             "Januari",
             "Februari",
@@ -2560,14 +2569,17 @@
             "Desember",
           ];
 
-          const blnNama = namaBulan[blnNum - 1] || dmy[1];
+          const hari = namaHari[parsed.getDay()];
+          const tgl = parsed.getDate();
+          const blnNama = namaBulan[parsed.getMonth()];
+          const thn = parsed.getFullYear();
 
-          let thnClean = thn;
-          if (parseInt(thn, 10) < 2000 || isNaN(parseInt(thn, 10))) {
-            thnClean = new Date().getFullYear();
-          }
+          let hours = String(parsed.getHours()).padStart(2, "0");
+          let minutes = String(parsed.getMinutes()).padStart(2, "0");
+          let seconds = String(parsed.getSeconds()).padStart(2, "0");
+          const hms = `${hours}:${minutes}:${seconds}`;
 
-          return `${hari}, ${tgl} ${blnNama} ${thnClean} pukul ${hms} WIB`;
+          return `${hari}, ${tgl} ${blnNama} ${thn} pukul ${hms} WIB`;
         } catch (e) {
           console.error("Gagal melakukan format waktu tap:", e);
           return waktuStr;
@@ -2587,7 +2599,7 @@
         }
       }
 
-      // --- DATABASE SYNC: MONITORING LOGS ---
+      // --- DATABASE SYNC: MONITORING LOGS & WATCHDOG DRIFT ---
       db.ref("Monitoring").on("value", (snapshot) => {
         const rawData = [];
         let localGranted = 0;
@@ -2607,6 +2619,37 @@
           });
         }
 
+        // 1. DRIFT WATCHDOG CALIBRATION (Client-Side NTP Sync):
+        // Membandingkan waktu mentah log paling baru milik ESP32 dengan browser untuk menguji desinkronisasi.
+        const rawSorted = [...rawData]
+          .map((log) => ({
+            ...log,
+            rawParsedDate: parseRawDate(log.waktu),
+          }))
+          .filter((log) => log.rawParsedDate.getTime() > 0)
+          .sort(
+            (a, b) => b.rawParsedDate.getTime() - a.rawParsedDate.getTime(),
+          );
+
+        if (rawSorted.length > 0) {
+          const latestRawTime = rawSorted[0].rawParsedDate.getTime();
+          const now = Date.now();
+
+          // Jika waktu ESP32 melenceng lebih dari 5 menit di masa depan, atau lebih dari 24 jam di masa lalu,
+          // aktifkan kalibrasi selisih waktu otomatis (drift correction).
+          if (
+            latestRawTime > now + 5 * 60 * 1000 ||
+            latestRawTime < now - 24 * 60 * 60 * 1000
+          ) {
+            dateTimeOffset = now - latestRawTime;
+          } else {
+            dateTimeOffset = 0; // Waktu ESP32 sehat, tidak butuh koreksi drift
+          }
+        } else {
+          dateTimeOffset = 0;
+        }
+
+        // 2. Sorting logs dengan kompensasi kalibrasi yang aman
         allLogs = rawData.sort((a, b) => {
           const dateA = parseDate(a.waktu);
           const dateB = parseDate(b.waktu);
@@ -2646,8 +2689,12 @@
 
           let timeOnly = "-";
           if (log.waktu) {
-            const match = log.waktu.match(/\d{2}:\d{2}:\d{2}/);
-            timeOnly = match ? match[0] : log.waktu;
+            const parsed = parseDate(log.waktu);
+            if (parsed.getTime() > 0) {
+              timeOnly = `${String(parsed.getHours()).padStart(2, "0")}:${String(parsed.getMinutes()).padStart(2, "0")}:${String(parsed.getSeconds()).padStart(2, "0")}`;
+            } else {
+              timeOnly = log.waktu;
+            }
           }
 
           container.innerHTML += `
@@ -2690,7 +2737,6 @@
         renderLogTable();
       }
 
-      // Membersihkan filter pencarian log
       function resetLogFilters() {
         document.getElementById("search-log").value = "";
         document.getElementById("filter-log-status").value = "ALL";
@@ -2732,9 +2778,12 @@
             ? '<span class="text-danger fw-bold"><i class="fas fa-user-secret me-1"></i>Tak Terdaftar</span>'
             : data.nama;
 
+          const rawWaktu = data.waktu || "-";
+          const formattedWaktu = formatTapTime(rawWaktu);
+
           tableBody.innerHTML += `
             <tr class="${isUnregistered ? "unregistered-row" : ""}">
-              <td class="ps-4 text-muted small">${data.waktu || "-"}</td>
+              <td class="ps-4 text-muted small">${formattedWaktu}</td>
               <td class="fw-bold">${displayName}</td>
               <td><code>${data.uid || "-"}</code></td>
               <td><span class="text-secondary fw-semibold">${data.id || "-"}</span></td>
@@ -3070,7 +3119,6 @@
           const scanData = snapshot.val();
           currentScanData = scanData;
 
-          // Autofill triggers for registration and profile edit
           if (regAutofillBtn && regDetectedUid) {
             regDetectedUid.innerText = scanData.uid;
             regAutofillBtn.classList.remove("d-none");
@@ -3082,7 +3130,6 @@
             profAutofillBtn.classList.add("animate-pulse");
           }
 
-          // Proteksi: Jika sudah terdaftar, langsung abaikan
           if (checkAndClearRegisteredScan(scanData)) {
             return;
           }
