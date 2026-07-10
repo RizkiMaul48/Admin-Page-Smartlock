@@ -1,0 +1,998 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Registrasi Admin - SmartLock Lab Komputer SMK PGRI KARBAS</title>
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght=300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Bootstrap 5 CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome for Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <!-- Firebase SDK (v8) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <style>
+      :root {
+        --primary-color: #4f46e5;
+        --primary-light: #818cf8;
+        --secondary-color: #64748b;
+        --success-color: #10b981;
+        --warning-color: #f59e0b;
+        --danger-color: #ef4444;
+        --sidebar-width: 280px;
+        --dark-navy: #0f172a;
+        --light-bg: #f8fafc;
+        --card-bg: #ffffff;
+        --text-main: #1e293b;
+        --text-muted: #64748b;
+        --border-color: #f1f5f9;
+        --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        --premium-shadow: 0 10px 30px rgba(79, 70, 229, 0.15);
+        --table-th-bg: #f8fafc;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: var(--light-bg);
+        color: var(--text-main);
+        margin: 0;
+        overflow-x: hidden;
+      }
+
+      /* Auth Screens Styles */
+      .auth-wrapper {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+      }
+
+      .auth-card {
+        border: none;
+        border-radius: 24px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        background: rgba(255, 255, 255, 0.98);
+        width: 100%;
+        max-width: 480px;
+        overflow: hidden;
+        animation: fadeIn 0.4s ease;
+      }
+
+      /* Sidebar Styles */
+      .sidebar {
+        width: var(--sidebar-width);
+        height: 100vh;
+        position: fixed;
+        left: 0;
+        top: 0;
+        background-color: var(--dark-navy);
+        color: white;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 1050;
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .sidebar-header {
+        padding: 1.5rem 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .sidebar-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: white;
+        text-decoration: none;
+      }
+
+      .sidebar-brand-title {
+        font-size: 1.15rem;
+        font-weight: 700;
+        line-height: 1.2;
+        letter-spacing: -0.025em;
+      }
+
+      .sidebar-brand-subtitle {
+        font-size: 0.75rem;
+        font-weight: 500;
+        opacity: 0.6;
+        display: block;
+      }
+
+      .nav-menu {
+        flex-grow: 1;
+        padding: 1rem 0;
+        overflow-y: auto;
+      }
+
+      .nav-item {
+        padding: 0.85rem 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        color: rgba(255, 255, 255, 0.55);
+        text-decoration: none;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        border-left: 4px solid transparent;
+        margin-bottom: 4px;
+        font-weight: 500;
+        font-size: 0.95rem;
+      }
+
+      .nav-item:hover,
+      .nav-item.active {
+        background: rgba(255, 255, 255, 0.04);
+        color: #f1f5f9;
+        border-left-color: var(--primary-color);
+      }
+
+      .nav-item.active i {
+        color: var(--primary-light);
+      }
+
+      .nav-item i {
+        width: 20px;
+        text-align: center;
+        font-size: 1.1rem;
+        transition: color 0.2s;
+      }
+
+      /* Main Content Styles */
+      .main-content {
+        margin-left: var(--sidebar-width);
+        padding: 2.5rem;
+        transition: all 0.3s ease;
+        min-height: 100vh;
+      }
+
+      .content-section {
+        display: none;
+        animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .content-section.active {
+        display: block;
+      }
+
+      .stat-card {
+        border: none;
+        border-radius: 16px;
+        box-shadow: var(--card-shadow);
+        background: var(--card-bg);
+        color: var(--text-main);
+        padding: 1.5rem;
+        height: 100%;
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease;
+      }
+
+      .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
+      }
+
+      .card {
+        border: none;
+        border-radius: 16px;
+        box-shadow: var(--card-shadow);
+        background: var(--card-bg);
+        margin-bottom: 2rem;
+        overflow: hidden;
+      }
+
+      .card-header {
+        background-color: var(--card-bg);
+        color: var(--text-main);
+        font-weight: 700;
+        border-bottom: 1px solid var(--border-color);
+        padding: 1.25rem 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      /* Camera Widget */
+      .cam-wrapper {
+        background: #000;
+        border-radius: 16px;
+        position: relative;
+        overflow: hidden;
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+        border: 2px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .cam-frame-large {
+        width: 100%;
+        aspect-ratio: 16/9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #1e293b;
+      }
+
+      .cam-frame-large img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .cam-timestamp {
+        position: absolute;
+        bottom: 12px;
+        right: 12px;
+        background: rgba(15, 23, 42, 0.85);
+        color: #fff;
+        padding: 6px 14px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .cam-badge {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        background: rgba(239, 68, 68, 0.9);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 50px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          opacity: 0.6;
+        }
+        50% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0.6;
+        }
+      }
+
+      /* Tables Design */
+      .table thead th {
+        background-color: var(--table-th-bg);
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        padding: 1.1rem 1rem;
+        border-bottom: 2px solid var(--border-color);
+      }
+
+      .table tbody td {
+        padding: 1.1rem 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid var(--border-color);
+        color: var(--text-main);
+        font-size: 0.9rem;
+      }
+
+      /* Form Elements Compatibility */
+      .form-control,
+      .form-select,
+      .input-group-text {
+        background-color: var(--card-bg) !important;
+        color: var(--text-main) !important;
+        border-color: var(--border-color) !important;
+      }
+      .form-control::placeholder {
+        color: var(--text-muted) !important;
+        opacity: 0.6;
+      }
+      .form-control:focus,
+      .form-select:focus {
+        background-color: var(--card-bg) !important;
+        color: var(--text-main) !important;
+        border-color: var(--primary-light) !important;
+        box-shadow: 0 0 0 0.25rem rgba(79, 70, 229, 0.15) !important;
+      }
+
+      /* Responsive Viewport Optimizations */
+      @media (max-width: 991.98px) {
+        .sidebar {
+          transform: translateX(-100%);
+        }
+        .sidebar.show {
+          transform: translateX(0);
+        }
+        .main-content {
+          margin-left: 0;
+          padding: 6rem 1rem 2rem 1rem;
+        }
+        .mobile-toggle {
+          display: flex !important;
+        }
+        .sidebar-overlay {
+          display: none;
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(15, 23, 42, 0.6);
+          z-index: 1040;
+          backdrop-filter: blur(3px);
+        }
+        .sidebar-overlay.show {
+          display: block;
+        }
+      }
+
+      .mobile-toggle {
+        display: none;
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        z-index: 1100;
+        background: var(--dark-navy);
+        color: white;
+        border: none;
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        transition: background-color 0.2s;
+      }
+
+      .mobile-toggle:hover,
+      .mobile-toggle:active {
+        background-color: var(--primary-color);
+        color: white;
+      }
+
+      .pagination-container {
+        padding: 1.25rem 1.5rem;
+        background: var(--table-th-bg);
+        border-top: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      @media (min-width: 768px) {
+        .pagination-container {
+          flex-direction: row;
+          justify-content: space-between;
+        }
+      }
+
+      .unregistered-row {
+        background-color: rgba(239, 68, 68, 0.02);
+      }
+
+      .form-control,
+      .form-select {
+        font-size: 1rem !important;
+      }
+
+      code {
+        color: #db2777;
+        background: #fdf2f8;
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        border: 1px solid #fbcfe8;
+      }
+
+      /* Radar pulsing styling for Scan Page */
+      .radar-signal {
+        position: relative;
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        background: rgba(79, 70, 229, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+      }
+
+      .radar-signal i {
+        color: var(--primary-color);
+        z-index: 2;
+      }
+
+      .radar-wave {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: rgba(79, 70, 229, 0.2);
+        animation: radar-pulsing 2s infinite ease-out;
+        z-index: 1;
+      }
+
+      @keyframes radar-pulsing {
+        0% {
+          transform: scale(0.9);
+          opacity: 1;
+        }
+        100% {
+          transform: scale(1.8);
+          opacity: 0;
+        }
+      }
+
+      .scan-progress-container {
+        height: 6px;
+        background-color: rgba(0, 0, 0, 0.05);
+        border-radius: 10px;
+        overflow: hidden;
+      }
+
+      /* Toast Notification Styling on Mobile */
+      #toast {
+        max-width: 350px;
+        width: 100%;
+      }
+      @media (max-width: 575.98px) {
+        #toast {
+          right: 0 !important;
+          left: 0 !important;
+          margin: 0 auto;
+          padding: 1rem;
+          max-width: 100%;
+          bottom: 10px !important;
+        }
+      }
+
+      /* Premium Interactive Photo Changer styles */
+      .avatar-container {
+        position: relative;
+        width: 120px;
+        height: 120px;
+        margin: 0 auto 1rem;
+        cursor: pointer;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 4px solid #ffffff;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease;
+      }
+      .avatar-container:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 25px rgba(79, 70, 229, 0.25);
+      }
+      .avatar-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(15, 23, 42, 0.7);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+      .avatar-container:hover .avatar-overlay {
+        opacity: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- STATE 1: LOADING KEAMANAN AWAL -->
+    <div
+      id="view-auth-loading"
+      class="min-vh-100 d-flex flex-column align-items-center justify-content-center bg-dark text-white text-center p-3"
+    >
+      <div
+        class="spinner-border text-primary mb-4"
+        style="width: 3rem; height: 3rem"
+        role="status"
+      >
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <h4 class="fw-bold mb-1">Menghubungkan ke SmartLock Lab...</h4>
+      <p class="text-muted small">
+        Sedang memverifikasi sesi administrator Anda
+      </p>
+    </div>
+
+    <!-- STATE 3: HALAMAN REGISTER -->
+    <div id="view-register" class="d-none auth-wrapper">
+      <div class="auth-card">
+        <div class="p-4 p-sm-5 text-center">
+          <div
+            class="rounded-circle bg-primary p-3 d-inline-flex align-items-center justify-content-center mb-4 text-white"
+            style="width: 70px; height: 70px"
+          >
+            <i class="fas fa-user-plus fa-2x"></i>
+          </div>
+          <h3 class="fw-bold text-dark mb-1">Daftar Akun Admin</h3>
+          <p class="text-muted small mb-4">
+            Buat akun pengelola baru untuk SmartLock Lab
+          </p>
+
+          <form id="register-form" onsubmit="handleRegister(event)">
+            <div class="mb-3 text-start">
+              <label class="form-label small fw-semibold text-muted"
+                >Nama Lengkap</label
+              >
+              <div class="input-group">
+                <span class="input-group-text"
+                  ><i class="fas fa-user text-muted"></i
+                ></span>
+                <input
+                  type="text"
+                  id="register-name"
+                  class="form-control"
+                  placeholder="Contoh: Rian Hidayat"
+                  required
+                />
+              </div>
+            </div>
+            <div class="mb-3 text-start">
+              <label class="form-label small fw-semibold text-muted"
+                >Alamat Email</label
+              >
+              <div class="input-group">
+                <span class="input-group-text"
+                  ><i class="fas fa-envelope text-muted"></i
+                ></span>
+                <input
+                  type="email"
+                  id="register-email"
+                  class="form-control"
+                  placeholder="nama@karbas.sch.id"
+                  required
+                />
+              </div>
+            </div>
+            <div class="mb-3 text-start">
+              <label class="form-label small fw-semibold text-muted"
+                >UID Kartu RFID Utama (Opsional)</label
+              >
+              <div class="input-group">
+                <span class="input-group-text"
+                  ><i class="fas fa-id-card text-muted"></i
+                ></span>
+                <input
+                  type="text"
+                  id="register-rfid"
+                  class="form-control font-monospace text-uppercase"
+                  placeholder="XX XX XX XX"
+                />
+              </div>
+              <!-- Magically Autofill current scanned RFID inside registration -->
+              <div class="text-start mt-2">
+                <button
+                  type="button"
+                  id="btn-autofill-register-rfid"
+                  class="btn btn-sm btn-outline-primary d-none w-100 py-2 border-dashed"
+                  onclick="autofillRegisterRFID()"
+                >
+                  <i class="fas fa-wand-magic-sparkles me-1"></i> Gunakan Kartu
+                  Terdeteksi: <strong id="register-detected-uid"></strong>
+                </button>
+              </div>
+            </div>
+            <div class="mb-4 text-start">
+              <label class="form-label small fw-semibold text-muted"
+                >Kata Sandi Baru</label
+              >
+              <div class="input-group">
+                <span class="input-group-text"
+                  ><i class="fas fa-lock text-muted"></i
+                ></span>
+                <input
+                  type="password"
+                  id="register-password"
+                  class="form-control"
+                  placeholder="Minimal 6 karakter"
+                  required
+                  minlength="6"
+                />
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary"
+                  onclick="togglePasswordVisibility('register-password')"
+                >
+                  <i class="far fa-eye" id="register-password-toggle"></i>
+                </button>
+              </div>
+            </div>
+            <button
+              type="submit"
+              class="btn btn-primary w-100 py-3 rounded-3 fw-bold shadow-sm"
+            >
+              <i class="fas fa-user-check me-2"></i> Daftarkan Akun
+            </button>
+          </form>
+
+          <div class="mt-4 pt-3 border-top text-center">
+            <p class="text-muted small mb-0">
+              Sudah punya akun?
+              <a
+                href="javascript:void(0)"
+                onclick="window.location.href='login.html'"
+                class="text-primary fw-bold text-decoration-none"
+                >Masuk Saja</a
+              >
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div
+      id="toast"
+      class="position-fixed bottom-0 end-0 p-3"
+      style="z-index: 9999"
+    ></div>
+
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+    <script>
+      // 1. Firebase Initialization (Menggunakan konfigurasi asli Anda yang telah disempurnakan)
+      const firebaseConfig = {
+        apiKey: "AIzaSyCQg3p8eOJS_HBiYcPq_BfAOyIftTIz1bI",
+        authDomain: "smartlockrizkimaulanay.firebaseapp.com",
+        projectId: "smartlockrizkimaulanay",
+        databaseURL:
+          "https://smartlockrizkimaulanay-default-rtdb.asia-southeast1.firebasedatabase.app/",
+      };
+
+      // Inisialisasi Firebase & Modul-modul Terkait
+      try {
+        firebase.initializeApp(firebaseConfig);
+        var db = firebase.database();
+        var auth = firebase.auth();
+      } catch (err) {
+        console.error("Firebase SDK Load Error:", err);
+      }
+
+      // --- SESI HANYA BERLAKU SELAMA TAB/BROWSER TERBUKA ---
+      // Default Firebase adalah "LOCAL" (tetap login walau browser ditutup).
+      // Diganti ke "SESSION" agar otomatis logout saat tab/browser ditutup.
+      var authReady = auth
+        .setPersistence(firebase.auth.Auth.Persistence.SESSION)
+        .catch((err) => {
+          console.error("Gagal mengatur session persistence:", err);
+        });
+
+      let isRegistering = false; // Flag proteksi race condition saat proses registrasi
+
+      // --- AUTO-HEALING SINKRONISASI PEMULIHAN SANGAT INTERAKTIF ---
+      function verifyAndHealAdmin(user) {
+        return db
+          .ref("Admins/" + user.uid)
+          .once("value")
+          .then((snapshot) => {
+            if (snapshot.exists()) {
+              return true;
+            }
+
+            return db
+              .ref("Admins")
+              .once("value")
+              .then((adminsSnap) => {
+                let foundAdminData = null;
+                let oldKey = null;
+
+                if (adminsSnap.exists()) {
+                  adminsSnap.forEach((child) => {
+                    const data = child.val();
+                    if (
+                      data &&
+                      data.email &&
+                      data.email.toLowerCase() === user.email.toLowerCase()
+                    ) {
+                      foundAdminData = data;
+                      oldKey = child.key;
+                    }
+                  });
+                }
+
+                if (foundAdminData) {
+                  return db
+                    .ref("Admins/" + user.uid)
+                    .set({
+                      nama:
+                        foundAdminData.nama ||
+                        user.displayName ||
+                        "Administrator",
+                      rfid: foundAdminData.rfid || foundAdminData.uid || "-",
+                      uid: foundAdminData.uid || foundAdminData.rfid || "-",
+                      photo:
+                        foundAdminData.photo ||
+                        user.photoURL ||
+                        "https://api.dicebear.com/7.x/bottts/svg?seed=" +
+                          encodeURIComponent(user.email),
+                      email: user.email,
+                      createdAt:
+                        foundAdminData.createdAt || new Date().toISOString(),
+                      updatedAt: new Date().toISOString(),
+                    })
+                    .then(() => {
+                      if (oldKey && oldKey !== user.uid) {
+                        db.ref("Admins/" + oldKey).remove();
+                      }
+                      return true;
+                    });
+                }
+
+                return false;
+              });
+          });
+      }
+
+      function showToast(message, type = "success") {
+        const toastContainer = document.getElementById("toast");
+        const id = "t-" + Date.now();
+        let icon = "fa-check-circle";
+        let bgColor = "bg-success";
+
+        if (type === "danger") {
+          icon = "fa-exclamation-circle";
+          bgColor = "bg-danger";
+        } else if (type === "primary" || type === "info" || type === "blue") {
+          icon = "fa-info-circle";
+          bgColor = "bg-primary";
+        }
+
+        toastContainer.innerHTML += `
+          <div id="${id}" class="alert shadow-lg border-0 mb-2 text-white ${bgColor}" style="min-width: 250px;">
+            <div class="d-flex align-items-center">
+              <i class="fas ${icon} me-2"></i>
+              <div class="flex-grow-1 small">${message}</div>
+              <button type="button" class="btn-close btn-close-white ms-2" onclick="document.getElementById('${id}').remove()"></button>
+            </div>
+          </div>`;
+        setTimeout(() => document.getElementById(id)?.remove(), 3500);
+      }
+
+
+      function togglePasswordVisibility(inputId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(inputId + "-toggle");
+        if (input.type === "password") {
+          input.type = "text";
+          icon.classList.remove("fa-eye");
+          icon.classList.add("fa-eye-slash");
+        } else {
+          input.type = "password";
+          icon.classList.remove("fa-eye-slash");
+          icon.classList.add("fa-eye");
+        }
+      }
+
+      // --- AUTHENTICATION STATE ROUTER (REGISTER PAGE) ---
+      // Menunggu persistence siap dulu supaya status login yang terbaca akurat
+      authReady.then(() => {
+      auth.onAuthStateChanged((user) => {
+        const viewLoading = document.getElementById("view-auth-loading");
+        const viewRegister = document.getElementById("view-register");
+
+        if (user) {
+          verifyAndHealAdmin(user).then((isAdmin) => {
+            if (isAdmin) {
+              window.location.href = "index.html";
+              return;
+            }
+
+            const creationTime = new Date(
+              user.metadata.creationTime || user.metadata.createdAt,
+            ).getTime();
+            const isJustCreated = Date.now() - creationTime < 15000;
+            if (isJustCreated || isRegistering) {
+              return; // Masih dalam proses registrasi, tunggu data Admin tersimpan
+            }
+
+            auth.signOut().then(() => {
+              viewLoading.classList.add("d-none");
+              viewRegister.classList.remove("d-none");
+              showToast(
+                "Akses Ditolak! Akun Anda tidak terdaftar sebagai Admin di database.",
+                "danger",
+              );
+            });
+          });
+        } else {
+          viewLoading.classList.add("d-none");
+          viewRegister.classList.remove("d-none");
+        }
+      });
+      });
+
+      // --- REGISTER SUBMIT ACTION ---
+      function handleRegister(event) {
+        event.preventDefault();
+        const name = document.getElementById("register-name").value.trim();
+        const email = document.getElementById("register-email").value.trim();
+        const rfid =
+          document.getElementById("register-rfid").value.toUpperCase().trim() ||
+          "-";
+        const password = document.getElementById("register-password").value;
+        const btn = event.target.querySelector("button[type='submit']");
+        const originalText = btn.innerHTML;
+
+        btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> Mendaftarkan Admin...`;
+        btn.disabled = true;
+
+        db.ref("Admins")
+          .once("value")
+          .then((snapshot) => {
+            let nameExists = false;
+            if (snapshot.exists()) {
+              snapshot.forEach((childSnapshot) => {
+                const adminData = childSnapshot.val();
+                if (
+                  adminData &&
+                  adminData.nama &&
+                  adminData.nama.toLowerCase() === name.toLowerCase()
+                ) {
+                  nameExists = true;
+                }
+              });
+            }
+
+            if (nameExists) {
+              throw {
+                code: "custom/name-already-exists",
+                message:
+                  "Nama lengkap tersebut sudah terdaftar sebagai Admin! Silakan gunakan nama lain.",
+              };
+            }
+
+            isRegistering = true;
+            return auth.createUserWithEmailAndPassword(email, password);
+          })
+          .then((cred) => {
+            const user = cred.user;
+            const photoUrl =
+              "https://api.dicebear.com/7.x/bottts/svg?seed=" +
+              encodeURIComponent(name);
+
+            return db
+              .ref("Admins/" + user.uid)
+              .set({
+                nama: name,
+                rfid: rfid,
+                uid: rfid,
+                photo: photoUrl,
+                email: email,
+                createdAt: new Date().toISOString(),
+              })
+              .then(() => {
+                if (rfid && rfid !== "-") {
+                  const cleanId = rfid.replace(/\s/g, "_");
+                  return db.ref("Users/" + cleanId).set({
+                    nama: name + " (Admin)",
+                    uid: rfid,
+                    idCard: "ADMIN-" + user.uid.substring(0, 5).toUpperCase(),
+                    peran: "Guru",
+                    statusAktivasi: "Aktif",
+                    createdAt: new Date().toISOString(),
+                  });
+                }
+              })
+              .then(() => {
+                return user.updateProfile({
+                  displayName: name,
+                  photoURL: photoUrl,
+                });
+              });
+          })
+          .then(() => {
+            showToast(
+              "Registrasi sukses! Kartu RFID langsung aktif sebagai akses pintu.",
+              "success",
+            );
+            document.getElementById("register-form").reset();
+          })
+          .catch((err) => {
+            console.error(err);
+            let msg = "Pendaftaran gagal. " + err.message;
+            if (err.code === "auth/email-already-in-use") {
+              msg =
+                "Alamat email ini sudah terdaftar! Jika Anda sebelumnya menghapus akun ini di database, pastikan Anda juga menghapus email ini di menu Firebase Console: Authentication > Users.";
+            } else if (err.code === "auth/weak-password") {
+              msg = "Kata sandi terlalu pendek (Min. 6 Karakter)!";
+            } else if (err.code === "custom/name-already-exists") {
+              msg = err.message;
+            }
+            showToast(msg, "danger");
+            isRegistering = false;
+          })
+          .finally(() => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            setTimeout(() => {
+              isRegistering = false;
+            }, 1000);
+          });
+      }
+
+      // --- AUTOFILL ACTIONS ---
+      function autofillRegisterRFID() {
+        const detected = document.getElementById(
+          "register-detected-uid",
+        ).innerText;
+        if (detected) {
+          document.getElementById("register-rfid").value = detected;
+          showToast(
+            "RFID " + detected + " berhasil disalin ke registrasi!",
+            "success",
+          );
+        }
+      }
+
+      // --- REAL-TIME DETEKSI KARTU RFID BARU UNTUK AUTOFILL FORM REGISTRASI ---
+      db.ref("ScanAntrean").on("value", (snapshot) => {
+        const btn = document.getElementById("btn-autofill-register-rfid");
+        const uidEl = document.getElementById("register-detected-uid");
+        if (!btn || !uidEl) return;
+
+        if (snapshot.exists()) {
+          const scanData = snapshot.val();
+          uidEl.innerText = scanData.uid;
+          btn.classList.remove("d-none");
+          btn.classList.add("animate-pulse");
+        } else {
+          btn.classList.add("d-none");
+        }
+      });
+
+    </script>
+  </body>
+</html>
